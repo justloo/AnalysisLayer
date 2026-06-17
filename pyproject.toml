@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "analysis-layer"
+version = "0.0.1"
+description = "A decision-anchored judgment engine: hypothesis-by-evidence reasoning, computed confidence, and self-scoring calibration."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Proprietary" }
+dependencies = [
+    "pydantic>=2.5",
+    "numpy>=1.24",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+# Google AI Studio / Gemini Developer API (recommended real provider).
+# The system runs fully offline without it (MockClient), per Section 9.2.
+google = ["google-genai>=1.0"]
+# Legacy Anthropic provider (optional alternative).
+anthropic = ["anthropic>=0.39"]
+# Embedding/clustering. cluster.py falls back to a deterministic token similarity
+# when this is absent, so installation stays light for the offline harness.
+embeddings = ["sentence-transformers>=2.2"]
+# Postgres + pgvector calibration store. calibration/store.py falls back to an
+# in-memory store with the same interface when these are absent.
+postgres = ["psycopg[binary]>=3.1", "pgvector>=0.2"]
+dev = ["pytest>=7.4", "pytest-cov>=4.1"]
+
+[project.scripts]
+analysis-layer = "cli:main"
+
+[tool.setuptools]
+py-modules = ["cli"]
+
+[tool.setuptools.packages.find]
+include = ["analysis_layer*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+markers = [
+    "fixtures: Mode 1 deterministic fixture tests (code nodes)",
+    "invariants: Mode 2 invariant gates that must pass on every run",
+    "synthetic: Mode 4 synthetic-scenario simulation tests",
+]

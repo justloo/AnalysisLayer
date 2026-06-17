@@ -1,0 +1,66 @@
+{
+  "id": "echo_cluster",
+  "decision_type": "competitor_pricing_move",
+  "pir": "Will the tracked competitor make a material pricing change within 30 days, and if so in which direction and on which product line?",
+  "ground_truth": {
+    "state": "One real leak about an entry-tier cut is amplified by many outlets; one separate source independently corroborates it.",
+    "resolves_to": "price_cut"
+  },
+  "signal_stream": [
+    {
+      "id": "pc_origin", "content": "A pricing analyst's newsletter reports the competitor will cut the entry tier.",
+      "pir_ref": "PIR-pricing-4", "timestamp": "2026-05-01T09:00:00Z",
+      "provenance_type": "primary", "epistemic_type": "subjective",
+      "declared_source_reliability": "B", "declared_information_credibility": "2",
+      "supports": "price_cut", "role": "genuine_indicator", "true_source_reliability": "B"
+    },
+    {
+      "id": "echo1", "content": "TechWire: 'Competitor to cut entry-tier pricing,' citing the analyst newsletter.",
+      "pir_ref": "PIR-pricing-4", "timestamp": "2026-05-01T11:00:00Z",
+      "provenance_type": "relaying", "epistemic_type": "subjective", "echo_of": "pc_origin",
+      "declared_source_reliability": "C", "declared_information_credibility": "3",
+      "supports": "price_cut", "role": "echo", "true_source_reliability": "C"
+    },
+    {
+      "id": "echo2", "content": "StartupDaily repeats the entry-tier cut story, attributing the newsletter.",
+      "pir_ref": "PIR-pricing-4", "timestamp": "2026-05-01T12:00:00Z",
+      "provenance_type": "relaying", "epistemic_type": "subjective", "echo_of": "pc_origin",
+      "declared_source_reliability": "C", "declared_information_credibility": "3",
+      "supports": "price_cut", "role": "echo", "true_source_reliability": "C"
+    },
+    {
+      "id": "echo3", "content": "A widely shared social thread summarizes the same newsletter claim.",
+      "pir_ref": "PIR-pricing-4", "timestamp": "2026-05-01T13:00:00Z",
+      "provenance_type": "relaying", "epistemic_type": "subjective", "echo_of": "pc_origin",
+      "declared_source_reliability": "D", "declared_information_credibility": "3",
+      "supports": "price_cut", "role": "echo", "true_source_reliability": "D"
+    },
+    {
+      "id": "echo4", "content": "An aggregator blog reposts the entry-tier cut rumor from the newsletter.",
+      "pir_ref": "PIR-pricing-4", "timestamp": "2026-05-01T14:00:00Z",
+      "provenance_type": "relaying", "epistemic_type": "subjective", "echo_of": "pc_origin",
+      "declared_source_reliability": "D", "declared_information_credibility": "3",
+      "supports": "price_cut", "role": "echo", "true_source_reliability": "D"
+    },
+    {
+      "id": "pc_indep", "content": "Separately, a reseller's portal already shows the entry tier at the lower price.",
+      "pir_ref": "PIR-pricing-4", "timestamp": "2026-05-02T09:00:00Z",
+      "provenance_type": "primary", "epistemic_type": "objective",
+      "declared_source_reliability": "C", "declared_information_credibility": "2",
+      "supports": "price_cut", "role": "genuine_indicator", "true_source_reliability": "C"
+    },
+    {
+      "id": "ec_noise", "content": "Competitor's CEO tweeted about a marathon they ran.",
+      "pir_ref": "PIR-pricing-4", "timestamp": "2026-05-02T10:00:00Z",
+      "provenance_type": "primary", "epistemic_type": "subjective",
+      "declared_source_reliability": "C", "declared_information_credibility": "3",
+      "supports": null, "role": "noise", "true_source_reliability": "C"
+    }
+  ],
+  "expectations": {
+    "leading_hypothesis": "price_cut",
+    "must_catch_weak_signal": false,
+    "must_resist_deception": false,
+    "confidence_tracks": "evidence_quality_not_volume"
+  }
+}

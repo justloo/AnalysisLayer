@@ -1,0 +1,17 @@
+# Core runtime (required). The offline harness runs with only these.
+pydantic>=2.5
+numpy>=1.24
+python-dotenv>=1.0
+
+# Test spine.
+pytest>=7.4
+
+# --- Optional extras (install as needed) -------------------------------------
+# Google AI Studio / Gemini Developer API (recommended).
+#   pip install "google-genai>=1.0"
+# Legacy Anthropic provider.
+#   pip install "anthropic>=0.39"
+# Embedding + clustering for the processing front end (FR-2).
+#   pip install "sentence-transformers>=2.2"
+# Postgres + pgvector calibration store (Section 9.2).
+#   pip install "psycopg[binary]>=3.1" "pgvector>=0.2"

@@ -1,0 +1,38 @@
+{
+  "id": "weak_signal",
+  "decision_type": "competitor_pricing_move",
+  "pir": "Will the tracked competitor make a material pricing change within 30 days, and if so in which direction and on which product line?",
+  "ground_truth": {
+    "state": "A genuine early cut is in motion but only one reliable source has caught a whisper of it; the rest is unrelated noise.",
+    "resolves_to": "price_cut"
+  },
+  "signal_stream": [
+    {
+      "id": "ws_whisper", "content": "A consistently reliable insider says the entry tier is about to be cut, but nothing public confirms it yet.",
+      "pir_ref": "PIR-pricing-5", "timestamp": "2026-06-01T09:00:00Z",
+      "provenance_type": "primary", "epistemic_type": "subjective",
+      "declared_source_reliability": "A", "declared_information_credibility": "4",
+      "supports": "price_cut", "role": "weak_signal", "true_source_reliability": "A"
+    },
+    {
+      "id": "ws_noise1", "content": "Competitor announced a webinar series for developers.",
+      "pir_ref": "PIR-pricing-5", "timestamp": "2026-06-02T09:00:00Z",
+      "provenance_type": "primary", "epistemic_type": "objective",
+      "declared_source_reliability": "B", "declared_information_credibility": "2",
+      "supports": null, "role": "noise", "true_source_reliability": "B"
+    },
+    {
+      "id": "ws_noise2", "content": "Competitor updated its privacy policy wording.",
+      "pir_ref": "PIR-pricing-5", "timestamp": "2026-06-03T09:00:00Z",
+      "provenance_type": "primary", "epistemic_type": "objective",
+      "declared_source_reliability": "B", "declared_information_credibility": "2",
+      "supports": null, "role": "noise", "true_source_reliability": "B"
+    }
+  ],
+  "expectations": {
+    "leading_hypothesis": "price_cut",
+    "must_catch_weak_signal": true,
+    "must_resist_deception": false,
+    "confidence_tracks": "evidence_quality_not_volume"
+  }
+}

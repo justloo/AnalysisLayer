@@ -1,0 +1,38 @@
+{
+  "id": "price_increase_clean",
+  "decision_type": "competitor_pricing_move",
+  "pir": "Will the tracked competitor make a material pricing change within 30 days, and if so in which direction and on which product line?",
+  "ground_truth": {
+    "state": "The competitor is repricing upward after a successful enterprise push and will raise list prices.",
+    "resolves_to": "price_increase"
+  },
+  "signal_stream": [
+    {
+      "id": "pi_filing", "content": "Investor deck cites pricing power and a planned list-price uplift on the pro tier.",
+      "pir_ref": "PIR-pricing-2", "timestamp": "2026-03-01T09:00:00Z",
+      "provenance_type": "primary", "epistemic_type": "objective",
+      "declared_source_reliability": "B", "declared_information_credibility": "2",
+      "supports": "price_increase", "role": "genuine_indicator", "true_source_reliability": "B"
+    },
+    {
+      "id": "pi_partner", "content": "Two resellers separately told us their pro-tier wholesale cost is going up next quarter.",
+      "pir_ref": "PIR-pricing-2", "timestamp": "2026-03-02T09:00:00Z",
+      "provenance_type": "primary", "epistemic_type": "subjective",
+      "declared_source_reliability": "C", "declared_information_credibility": "3",
+      "supports": "price_increase", "role": "genuine_indicator", "true_source_reliability": "C"
+    },
+    {
+      "id": "pi_noise", "content": "Competitor refreshed its marketing site illustrations.",
+      "pir_ref": "PIR-pricing-2", "timestamp": "2026-03-03T09:00:00Z",
+      "provenance_type": "primary", "epistemic_type": "objective",
+      "declared_source_reliability": "B", "declared_information_credibility": "2",
+      "supports": null, "role": "noise", "true_source_reliability": "B"
+    }
+  ],
+  "expectations": {
+    "leading_hypothesis": "price_increase",
+    "must_catch_weak_signal": false,
+    "must_resist_deception": false,
+    "confidence_tracks": "evidence_quality_not_volume"
+  }
+}

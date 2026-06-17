@@ -1,0 +1,16 @@
+# Local Postgres + pgvector for the calibration store (Section 9.2). Optional:
+# the offline harness uses an in-memory store and needs none of this.
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: analysis
+      POSTGRES_PASSWORD: analysis
+      POSTGRES_DB: analysis_layer
+    ports:
+      - "5432:5432"
+    volumes:
+      - analysis_layer_pgdata:/var/lib/postgresql/data
+
+volumes:
+  analysis_layer_pgdata:

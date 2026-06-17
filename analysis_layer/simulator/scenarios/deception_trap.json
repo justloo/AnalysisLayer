@@ -1,0 +1,38 @@
+{
+  "id": "deception_trap",
+  "decision_type": "competitor_pricing_move",
+  "pir": "Will the tracked competitor make a material pricing change within 30 days, and if so in which direction and on which product line?",
+  "ground_truth": {
+    "state": "The competitor is NOT changing prices. It deliberately leaked a convincing entry-tier cut rumor through a trusted channel to bait a premature response.",
+    "resolves_to": "no_change"
+  },
+  "signal_stream": [
+    {
+      "id": "dt_plant", "content": "A normally reliable industry contact passes along that the competitor will cut the entry tier within weeks.",
+      "pir_ref": "PIR-pricing-6", "timestamp": "2026-06-05T09:00:00Z",
+      "provenance_type": "primary", "epistemic_type": "subjective",
+      "declared_source_reliability": "B", "declared_information_credibility": "4",
+      "supports": "price_cut", "role": "deception", "true_source_reliability": "B"
+    },
+    {
+      "id": "dt_noise1", "content": "Competitor posted a job opening for a technical writer.",
+      "pir_ref": "PIR-pricing-6", "timestamp": "2026-06-06T09:00:00Z",
+      "provenance_type": "primary", "epistemic_type": "objective",
+      "declared_source_reliability": "B", "declared_information_credibility": "2",
+      "supports": null, "role": "noise", "true_source_reliability": "B"
+    },
+    {
+      "id": "dt_noise2", "content": "Competitor renewed its cloud hosting contract.",
+      "pir_ref": "PIR-pricing-6", "timestamp": "2026-06-07T09:00:00Z",
+      "provenance_type": "primary", "epistemic_type": "objective",
+      "declared_source_reliability": "C", "declared_information_credibility": "3",
+      "supports": null, "role": "noise", "true_source_reliability": "C"
+    }
+  ],
+  "expectations": {
+    "leading_hypothesis": "no_change",
+    "must_catch_weak_signal": false,
+    "must_resist_deception": true,
+    "confidence_tracks": "evidence_quality_not_volume"
+  }
+}

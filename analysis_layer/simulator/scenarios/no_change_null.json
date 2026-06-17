@@ -1,0 +1,38 @@
+{
+  "id": "no_change_null",
+  "decision_type": "competitor_pricing_move",
+  "pir": "Will the tracked competitor make a material pricing change within 30 days, and if so in which direction and on which product line?",
+  "ground_truth": {
+    "state": "The competitor is steady-state on pricing; nothing material is in motion.",
+    "resolves_to": "no_change"
+  },
+  "signal_stream": [
+    {
+      "id": "nc_blog", "content": "Competitor published a thought-leadership blog post on developer productivity.",
+      "pir_ref": "PIR-pricing-3", "timestamp": "2026-04-01T09:00:00Z",
+      "provenance_type": "primary", "epistemic_type": "objective",
+      "declared_source_reliability": "B", "declared_information_credibility": "2",
+      "supports": null, "role": "noise", "true_source_reliability": "B"
+    },
+    {
+      "id": "nc_hire", "content": "Competitor hired two backend engineers, unrelated to pricing.",
+      "pir_ref": "PIR-pricing-3", "timestamp": "2026-04-02T09:00:00Z",
+      "provenance_type": "primary", "epistemic_type": "objective",
+      "declared_source_reliability": "B", "declared_information_credibility": "2",
+      "supports": null, "role": "noise", "true_source_reliability": "B"
+    },
+    {
+      "id": "nc_event", "content": "Competitor sponsored a regional tech meetup.",
+      "pir_ref": "PIR-pricing-3", "timestamp": "2026-04-03T09:00:00Z",
+      "provenance_type": "primary", "epistemic_type": "objective",
+      "declared_source_reliability": "C", "declared_information_credibility": "3",
+      "supports": null, "role": "noise", "true_source_reliability": "C"
+    }
+  ],
+  "expectations": {
+    "leading_hypothesis": "no_change",
+    "must_catch_weak_signal": false,
+    "must_resist_deception": false,
+    "confidence_tracks": "evidence_quality_not_volume"
+  }
+}

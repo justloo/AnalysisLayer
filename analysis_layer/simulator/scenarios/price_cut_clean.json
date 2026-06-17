@@ -1,0 +1,38 @@
+{
+  "id": "price_cut_clean",
+  "decision_type": "competitor_pricing_move",
+  "pir": "Will the tracked competitor make a material pricing change within 30 days, and if so in which direction and on which product line?",
+  "ground_truth": {
+    "state": "The competitor has decided to cut the entry-tier price to chase share and is staging the change.",
+    "resolves_to": "price_cut"
+  },
+  "signal_stream": [
+    {
+      "id": "pc_edit", "content": "Competitor pricing page draft shows the entry tier dropping from $49 to $39.",
+      "pir_ref": "PIR-pricing-1", "timestamp": "2026-02-01T09:00:00Z",
+      "provenance_type": "primary", "epistemic_type": "objective",
+      "declared_source_reliability": "B", "declared_information_credibility": "2",
+      "supports": "price_cut", "role": "genuine_indicator", "true_source_reliability": "B"
+    },
+    {
+      "id": "pc_hire", "content": "Competitor posted two revenue-operations roles focused on entry-tier conversion.",
+      "pir_ref": "PIR-pricing-1", "timestamp": "2026-02-02T09:00:00Z",
+      "provenance_type": "primary", "epistemic_type": "objective",
+      "declared_source_reliability": "C", "declared_information_credibility": "2",
+      "supports": "price_cut", "role": "genuine_indicator", "true_source_reliability": "C"
+    },
+    {
+      "id": "pc_noise", "content": "Competitor announced a new office lease in Austin.",
+      "pir_ref": "PIR-pricing-1", "timestamp": "2026-02-03T09:00:00Z",
+      "provenance_type": "primary", "epistemic_type": "objective",
+      "declared_source_reliability": "B", "declared_information_credibility": "2",
+      "supports": null, "role": "noise", "true_source_reliability": "B"
+    }
+  ],
+  "expectations": {
+    "leading_hypothesis": "price_cut",
+    "must_catch_weak_signal": false,
+    "must_resist_deception": false,
+    "confidence_tracks": "evidence_quality_not_volume"
+  }
+}
