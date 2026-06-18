@@ -19,14 +19,14 @@ from analysis_layer.schema.state import AnalysisState, MatrixCell, MatrixJudgmen
 
 
 def build_matrix(state: AnalysisState, client: ModelClient) -> AnalysisState:
-    supports_by_id = {s.id: s.supports for s in state.signals}
     cells = []
     for e in state.evidence:
         for h in state.hypotheses:
+            # Precondition B: judge from content only; never pass `supports` (harness
+            # ground truth) into the consistency judgment call.
             res = client.reason(
                 tasks.JUDGE_CELL,
                 {
-                    "supports": supports_by_id.get(e.id),
                     "evidence": {"id": e.id, "content": e.content},
                     "hypothesis": {
                         "id": h.id,

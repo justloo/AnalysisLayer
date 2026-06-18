@@ -1,8 +1,7 @@
 import json
 from pathlib import Path
 from datetime import datetime
-from analysis_layer.simulator.loader import load_scenario
-from analysis_layer.simulator.synthetic import run_scenario
+from analysis_layer.simulator.report_builder import build_library_reports, report_to_dict
 
 custom_files = [
     "echo_inflation_no_real_signal.json",
@@ -12,83 +11,9 @@ custom_files = [
     "weak_signal_early_cut.json"
 ]
 
-results = []
-
-for filename in custom_files:
-    path = Path("analysis_layer/simulator/scenarios") / filename
-    scenario = load_scenario(path)
-    res = run_scenario(scenario)
-    a = res.assessment
-    
-    # Extract hypotheses details
-    hyps = []
-    for h in a.hypotheses:
-        hyps.append({
-            "id": h.id,
-            "statement": h.statement,
-            "status": h.status.value,
-            "relative_likelihood": h.relative_likelihood,
-            "is_null": h.is_null,
-            "is_deception": h.is_deception,
-            "rationale": h.rationale
-        })
-    # Sort hypotheses by relative likelihood desc
-    hyps = sorted(hyps, key=lambda x: x["relative_likelihood"], reverse=True)
-        
-    # Extract evidence details
-    ev_list = []
-    for e in a.evidence:
-        ev_list.append({
-            "id": e.id,
-            "content": e.content,
-            "source_reliability": e.source_reliability.value,
-            "information_credibility": e.information_credibility.value,
-            "primary": e.source_type.primary,
-            "objective": e.source_type.objective,
-            "origin_id": e.origin_id,
-            "diagnostic_value": e.diagnostic_value,
-            "weak_signal": e.weak_signal
-        })
-        
-    # Extract assumptions details
-    ass_list = []
-    for ass in a.assumptions:
-        ass_list.append({
-            "statement": ass.statement,
-            "fragility": ass.fragility
-        })
-        
-    results.append({
-        "id": scenario.id,
-        "pir": scenario.pir,
-        "ground_truth_state": scenario.ground_truth.state,
-        "ground_truth_resolves_to": scenario.ground_truth.resolves_to,
-        "passed": res.passed,
-        "leading_hypothesis": res.leading_hypothesis,
-        "expected_leading": res.expected_leading,
-        "bluf": a.bluf,
-        "likelihood": {
-            "term": a.likelihood.term.value,
-            "low": a.likelihood.probability_band.low,
-            "high": a.likelihood.probability_band.high
-        },
-        "confidence": {
-            "level": a.confidence.level.value,
-            "low": a.confidence.band.low,
-            "high": a.confidence.band.high,
-            "drivers": a.confidence.drivers
-        },
-        "key_judgments": a.key_judgments,
-        "recommended_action": a.recommended_action,
-        "hypotheses": hyps,
-        "evidence": ev_list,
-        "assumptions": ass_list,
-        "gaps": a.gaps,
-        "red_team": {
-            "outcome": a.red_team.outcome.value,
-            "challenges_raised": a.red_team.challenges_raised
-        }
-    })
+scenario_paths = [Path("analysis_layer/simulator/scenarios") / f for f in custom_files]
+reports = build_library_reports(scenario_paths)
+results = [report_to_dict(r) for r in reports]
 
 # HTML Generation Template
 html_content = f"""<!DOCTYPE html>

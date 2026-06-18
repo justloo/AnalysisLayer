@@ -77,12 +77,19 @@ def run_red_team(
     mirror_imaging = leading_id in _MATERIAL_IDS and _leading_support_all_subjective(state, leading_id)
     flags["mirror_imaging"] = mirror_imaging
 
+    # F3: uniform low-grade dependency — every diagnostic supporter of the
+    # leading material judgment is below the quality floor with no high-grade
+    # primary objective corroboration.
+    uniform_low_grade = _uniform_low_grade_dependency(state, leading_id)
+    flags["uniform_low_grade_dependency"] = uniform_low_grade
+
     # Narrative challenges from the model, given the structural cues.
     res = client.reason(
         tasks.RED_TEAM,
         {
             "leading_hypothesis_id": leading_id,
             "single_source_dependent": single_source_dependent,
+            "uniform_low_grade_dependency": uniform_low_grade,
             "deception_cue": deception_cue,
             "mirror_imaging_cue": mirror_imaging,
             "thin_margin": thin_margin,
@@ -106,7 +113,7 @@ def run_red_team(
             challenges.append(
                 "Deception not ruled out on a single-sourced material move; returned for collection."
             )
-    elif single_source_dependent or thin_margin or mirror_imaging:
+    elif single_source_dependent or thin_margin or mirror_imaging or uniform_low_grade:
         outcome = RedTeamOutcome.confidence_downgraded
         state.confidence_cap_low = True
 
@@ -177,3 +184,36 @@ def _leading_support_all_subjective(state: AnalysisState, leading_id: str) -> bo
     if not supporters:
         return False
     return all(not e.source_type.objective for e in supporters)
+
+
+def _uniform_low_grade_dependency(state: AnalysisState, leading_id: Optional[str]) -> bool:
+    """F3: material judgment rests only on uniformly low-grade evidence.
+
+    When the null leads but a material hypothesis is being pushed solely by
+    weak low-grade items (only_wrong_data), challenge that pattern too."""
+    target_id = leading_id
+    if leading_id not in _MATERIAL_IDS:
+        pushed = [hid for hid in _MATERIAL_IDS if state.evidence_for.get(hid, 0.0) > 0]
+        if not pushed:
+            return False
+        target_id = max(pushed, key=lambda hid: state.evidence_for.get(hid, 0.0))
+    supporters = []
+    for cell in state.matrix:
+        if cell.hypothesis_id != target_id or cell.judgment != MatrixJudgment.consistent:
+            continue
+        e = state.evidence_by_id(cell.evidence_id)
+        if e is None or e.diagnostic_value <= 0:
+            continue
+        supporters.append(e)
+    if not supporters:
+        return False
+    if any(
+        scales.is_high_grade(e.source_reliability, e.information_credibility)
+        and e.source_type.primary
+        and e.source_type.objective
+        for e in supporters
+    ):
+        return False
+    return all(
+        scales.is_low_grade(e.source_reliability, e.information_credibility) for e in supporters
+    )

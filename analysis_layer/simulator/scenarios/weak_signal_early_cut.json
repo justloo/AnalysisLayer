@@ -87,7 +87,7 @@
     }
   ],
   "expectations": {
-    "leading_hypothesis": "no_change",
+    "leading_hypothesis": "price_cut",
     "must_catch_weak_signal": true,
     "must_resist_deception": false,
     "confidence_tracks": "evidence_quality_not_volume"

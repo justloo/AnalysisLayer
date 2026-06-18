@@ -7,6 +7,7 @@ HTTP API and no task queue are needed at this stage.
 Usage:
   python cli.py run <scenario.json>      # run one scenario, print the assessment
   python cli.py score [--runs N]         # run the seed library, print scoreboard
+  python cli.py ensemble [--runs N]      # run battery through ensemble aggregation
   python cli.py invariants               # run invariants over the seed library
   python cli.py generate [--n N]         # emit adversarial candidate scenarios
 """
@@ -42,6 +43,29 @@ def _cmd_score(args: argparse.Namespace) -> int:
     return 0 if sb.passes() else 1
 
 
+def _cmd_ensemble(args: argparse.Namespace) -> int:
+    from analysis_layer.simulator.ensemble_battery import run_ensemble_battery
+
+    rows = run_ensemble_battery(n_analysts=args.runs)
+    ok = True
+    print(f"{'scenario':35} {'single':14} {'ensemble':14} {'disagree':>8} {'post':>6} ok")
+    print("-" * 85)
+    for row in rows:
+        stable = row.leading_stable and row.posterior_in_bounds
+        match = row.ensemble_leading == row.expected_leading
+        if not stable or (row.single_analyst_leading == row.expected_leading and not match):
+            ok = False
+        flag = "PASS" if stable and match else "FAIL"
+        print(
+            f"{row.scenario_id:35} {row.single_analyst_leading:14} "
+            f"{row.ensemble_leading:14} {row.ensemble_disagreement:8.2f} "
+            f"{row.leading_posterior:6.3f} {flag}"
+        )
+    print("-" * 85)
+    print("ENSEMBLE BATTERY:", "PASS" if ok else "FAILURES PRESENT")
+    return 0 if ok else 1
+
+
 def _cmd_invariants(_args: argparse.Namespace) -> int:
     ok = True
     for sc in load_library():
@@ -74,6 +98,10 @@ def main(argv=None) -> int:
     p_score = sub.add_parser("score", help="run the seed library and print the scoreboard")
     p_score.add_argument("--runs", type=int, default=5)
     p_score.set_defaults(func=_cmd_score)
+
+    p_ens = sub.add_parser("ensemble", help="run mechanism battery through ensemble aggregation")
+    p_ens.add_argument("--runs", type=int, default=3, help="number of parallel analysts")
+    p_ens.set_defaults(func=_cmd_ensemble)
 
     p_inv = sub.add_parser("invariants", help="run invariants over the seed library")
     p_inv.set_defaults(func=_cmd_invariants)

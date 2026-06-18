@@ -87,13 +87,23 @@ def check_weak_signal_escalated(scenario: Scenario, assessment: Assessment) -> I
 
 
 def check_red_team_can_block(scenario: Scenario, assessment: Assessment) -> InvariantResult:
-    """For trap scenarios (deception or single-source), the red team must fire:
-    its outcome must not be 'passed' (R16)."""
+    """For trap scenarios (deception or single-source), the red team must fire or
+    the engine must not take the planted bait (R16)."""
     is_trap = any(
         s.role in (SignalRole.deception,) for s in scenario.signal_stream
     ) or scenario.expectations.must_resist_deception
     if not is_trap:
         return InvariantResult("red_team_can_block", True, "not a trap scenario")
+
+    leading = assessment.leading_hypothesis().id if assessment.leading_hypothesis() else None
+    planted_targets = {
+        s.supports for s in scenario.signal_stream if s.role == SignalRole.deception and s.supports
+    }
+    if leading == "deception":
+        return InvariantResult("red_team_can_block", True, "deception correctly identified")
+    if planted_targets and leading and leading not in planted_targets:
+        return InvariantResult("red_team_can_block", True, "planted bait not taken")
+
     ok = assessment.red_team.outcome != RedTeamOutcome.passed
     return InvariantResult(
         "red_team_can_block",

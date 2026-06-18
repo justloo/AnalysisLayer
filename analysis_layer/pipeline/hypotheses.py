@@ -13,6 +13,7 @@ from __future__ import annotations
 from analysis_layer.models import tasks
 from analysis_layer.models.client import ModelClient
 from analysis_layer.models.tiers import Tier
+from analysis_layer.evidence_bearing import infer_bearing
 from analysis_layer.pipeline import scales
 from analysis_layer.schema.assessment import Hypothesis, HypothesisStatus
 from analysis_layer.schema.state import AnalysisState
@@ -24,14 +25,13 @@ def deception_plausible(state: AnalysisState) -> bool:
     """A planted feint is plausible when a reliable source makes an
     uncorroborated claim pointing at a material move (the classic conduit for
     deception, A4.4)."""
-    supports_by_id = {s.id: s.supports for s in state.signals}
     origins_by_claim = {}
     for e in state.evidence:
-        claim = supports_by_id.get(e.id)
+        claim = infer_bearing(e.content)
         if claim:
             origins_by_claim.setdefault(claim, set()).add(e.origin_id)
     for e in state.evidence:
-        claim = supports_by_id.get(e.id)
+        claim = infer_bearing(e.content)
         if claim in _MATERIAL_IDS and scales.is_reliable(e.source_reliability):
             if len(origins_by_claim.get(claim, set())) <= 1:
                 return True

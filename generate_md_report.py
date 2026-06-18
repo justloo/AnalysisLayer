@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from analysis_layer.simulator.loader import load_scenario
-from analysis_layer.simulator.synthetic import run_scenario
+from analysis_layer.simulator.report_builder import build_library_reports, report_to_dict
 
 custom_files = [
     # Batch 1 (files)
@@ -29,22 +29,19 @@ md_lines = [
     "| :--- | :--- | :--- | :---: | :--- | :--- |"
 ]
 
+scenario_paths = [Path("analysis_layer/simulator/scenarios") / f for f in custom_files]
+built = build_library_reports(scenario_paths)
 results = []
 
-for filename in custom_files:
-    path = Path("analysis_layer/simulator/scenarios") / filename
-    scenario = load_scenario(path)
-    res = run_scenario(scenario)
-    a = res.assessment
-    
-    # Sort hypotheses by likelihood
+for report in built:
+    scenario = report.scenario
+    res = report.result
+    a = report.assessment
     hyps = sorted(a.hypotheses, key=lambda x: x.relative_likelihood, reverse=True)
-    
     status_emoji = "✅ PASS" if res.passed else "❌ FAIL"
     md_lines.append(
-        f"| **{scenario.id}** | `{res.expected_leading}` | `{res.leading_hypothesis}` | {status_emoji} | {a.likelihood.term.value} | {a.confidence.level.value} |"
+        f"| **{scenario.id}** | `{report.expected_leading_from_file}` | `{res.leading_hypothesis}` | {status_emoji} | {a.likelihood.term.value} | {a.confidence.level.value} |"
     )
-    
     results.append((scenario, res, a, hyps))
 
 md_lines.append("")

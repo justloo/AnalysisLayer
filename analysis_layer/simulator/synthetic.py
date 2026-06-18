@@ -42,6 +42,7 @@ class SyntheticResult:
     must_resist_deception: bool
     deception_resisted: Optional[bool]
     confidence_tracks_quality: bool
+    ground_truth_resolves_to: str = ""
     notes: List[str] = field(default_factory=list)
 
     @property
@@ -96,6 +97,7 @@ def run_scenario(
         must_resist_deception=scenario.expectations.must_resist_deception,
         deception_resisted=deception_resisted,
         confidence_tracks_quality=confidence_ok,
+        ground_truth_resolves_to=scenario.ground_truth.resolves_to,
         notes=notes,
     )
 

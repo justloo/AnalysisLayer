@@ -16,6 +16,7 @@ from __future__ import annotations
 from typing import Dict, Set
 
 from analysis_layer.pipeline import scales
+from analysis_layer.evidence_bearing import infer_bearing
 from analysis_layer.schema.assessment import IndicatorDirection, IndicatorWatch
 from analysis_layer.schema.state import AnalysisState
 
@@ -24,15 +25,14 @@ def weight_event(state: AnalysisState) -> AnalysisState:
     # Map each claim (the hypothesis a signal points to) to the set of distinct
     # origins asserting it, so corroboration is counted independent of echo.
     origins_by_claim: Dict[str, Set[str]] = {}
-    supports_by_id = {s.id: s.supports for s in state.signals}
     for e in state.evidence:
-        claim = supports_by_id.get(e.id)
+        claim = infer_bearing(e.content)
         if claim is None:
             continue
         origins_by_claim.setdefault(claim, set()).add(e.origin_id)
 
     for e in state.evidence:
-        claim = supports_by_id.get(e.id)
+        claim = infer_bearing(e.content)
         independent_origins = len(origins_by_claim.get(claim, set())) if claim else 0
         uncorroborated = claim is not None and independent_origins <= 1
         if (

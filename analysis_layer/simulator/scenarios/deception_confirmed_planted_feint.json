@@ -1,0 +1,82 @@
+{
+  "id": "deception_confirmed_planted_feint",
+  "decision_type": "competitor_pricing_move",
+  "pir": "Will the tracked competitor make a material pricing change within 30 days, and if so in which direction and on which product line?",
+  "ground_truth": {
+    "state": "Cirrus is not changing list prices. It is running an active deception operation: a deliberately planted Starter price-cut rumor was seeded through a single industry contact while leadership remains committed to current pricing. Counter-intelligence has confirmed the disinformation campaign and named the cut story as a planted feint. The correct analytic conclusion is that deception is underway, not that a cut is coming.",
+    "resolves_to": "no_change"
+  },
+  "signal_stream": [
+    {
+      "id": "dc_plant_rumor",
+      "content": "A normally reliable industry contact passes along that Cirrus will cut the entry tier within weeks.",
+      "pir_ref": "PIR-pricing-8",
+      "timestamp": "2026-08-01T09:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "B",
+      "declared_information_credibility": "4",
+      "supports": "price_cut",
+      "role": "deception",
+      "true_source_reliability": "B"
+    },
+    {
+      "id": "dc_leak_memo",
+      "content": "A leaked internal memo describes Phase 1 of Cirrus's deception operation: deliberately plant a false entry-tier cut story in the trade press while keeping list prices unchanged.",
+      "pir_ref": "PIR-pricing-8",
+      "timestamp": "2026-08-02T11:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "2",
+      "supports": "deception",
+      "role": "genuine_indicator",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "dc_ci_confirm",
+      "content": "A counter-intelligence liaison confirmed Cirrus is running a deliberate planted feint: the Starter cut rumor is disinformation and list prices will remain unchanged through the window.",
+      "pir_ref": "PIR-pricing-8",
+      "timestamp": "2026-08-03T14:30:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "2",
+      "supports": "deception",
+      "role": "genuine_indicator",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "dc_official_calm",
+      "content": "On its most recent earnings call, Cirrus leadership reiterated that the company remains committed to current pricing and has no major near-term pricing changes planned.",
+      "pir_ref": "PIR-pricing-8",
+      "timestamp": "2026-08-04T15:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "B",
+      "declared_information_credibility": "2",
+      "supports": "no_change",
+      "role": "genuine_indicator",
+      "true_source_reliability": "B"
+    },
+    {
+      "id": "dc_noise",
+      "content": "Cirrus posted a job opening for a technical writer.",
+      "pir_ref": "PIR-pricing-8",
+      "timestamp": "2026-08-05T09:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "B",
+      "declared_information_credibility": "2",
+      "supports": null,
+      "role": "noise",
+      "true_source_reliability": "B"
+    }
+  ],
+  "expectations": {
+    "leading_hypothesis": "deception",
+    "must_catch_weak_signal": false,
+    "must_resist_deception": true,
+    "confidence_tracks": "evidence_quality_not_volume"
+  }
+}

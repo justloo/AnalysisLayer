@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import statistics
 from collections import Counter
+from dataclasses import replace
 from typing import List, Optional
 
 from analysis_layer.config import Settings, get_settings
@@ -31,12 +32,17 @@ def analyze_ensemble(
     n_analysts: int = 3,
     client: Optional[ModelClient] = None,
     settings: Optional[Settings] = None,
+    settings_per_analyst: Optional[List[Settings]] = None,
     event_id: str = "event-1",
 ) -> Assessment:
     settings = settings or get_settings()
+    if settings_per_analyst is not None:
+        analyst_settings = settings_per_analyst
+    else:
+        analyst_settings = [settings] * max(1, n_analysts)
     runs: List[Assessment] = []
     for i in range(max(1, n_analysts)):
-        orch = Orchestrator(client=client, settings=settings)
+        orch = Orchestrator(client=client, settings=analyst_settings[min(i, len(analyst_settings) - 1)])
         runs.append(orch.analyze(signals, pir_ref, event_id=event_id))
 
     leading_ids = [a.leading_hypothesis().id for a in runs if a.leading_hypothesis()]

@@ -1,36 +1,55 @@
 """Deterministic handlers backing the MockClient.
 
-This is a test double, not the product's intelligence. It lets the full pipeline
-and the entire simulator run offline with zero API keys (PRD Section 9.2), so the
-code nodes, invariants, and scenario plumbing are exercisable the moment they
-exist. A real provider (GoogleAIClient) replaces it without any pipeline change.
-
-Design rule honored here: the mock forms cell judgments and grades from
-*observable* signal framing (the `supports` hint, source type, reliability,
-echo_of), never from a scenario's hidden ground truth or a signal's `role`. That
-keeps deception-resistance and weak-signal-catch honest tests rather than the
-engine being handed the answer.
+This is a test double, not the product's intelligence. Cell judgments are formed
+from evidence *content* only (Precondition B); the `supports` field on signals is
+harness ground-truth metadata and is never passed into the matrix judge.
 """
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from analysis_layer.models import tasks
+from analysis_layer.evidence_bearing import (
+    describes_deception_operation,
+    feint_target_bearing,
+    infer_bearing,
+    is_forward_looking,
+)
 
-# The v0 hypothesis template for competitor pricing moves (PRD Section 3).
 _PRICING_TEMPLATE = [
-    {"id": "price_cut", "statement": "The competitor will cut prices on a tracked product line.",
-     "is_null": False, "is_deception": False},
-    {"id": "price_increase", "statement": "The competitor will raise prices on a tracked product line.",
-     "is_null": False, "is_deception": False},
-    {"id": "repackaging", "statement": "The competitor will repackage or restructure tiers without a headline price change.",
-     "is_null": False, "is_deception": False},
-    {"id": "no_change", "statement": "No material pricing change within the window.",
-     "is_null": True, "is_deception": False},
+    {
+        "id": "price_cut",
+        "statement": "The competitor will cut prices on a tracked product line.",
+        "is_null": False,
+        "is_deception": False,
+    },
+    {
+        "id": "price_increase",
+        "statement": "The competitor will raise prices on a tracked product line.",
+        "is_null": False,
+        "is_deception": False,
+    },
+    {
+        "id": "repackaging",
+        "statement": "The competitor will repackage or restructure tiers without a headline price change.",
+        "is_null": False,
+        "is_deception": False,
+    },
+    {
+        "id": "no_change",
+        "statement": "No material pricing change within the window.",
+        "is_null": True,
+        "is_deception": False,
+    },
 ]
+# F2: falsifiable deception claim — a feint masking a *different* move can be
+# disconfirmed by corroborated evidence for the visible move.
 _DECEPTION = {
     "id": "deception",
-    "statement": "A visible pricing signal is a planted feint intended to mislead.",
+    "statement": (
+        "Visible pricing signals are a planted feint masking a different imminent "
+        "move (not the move they appear to show)."
+    ),
     "is_null": False,
     "is_deception": True,
 }
@@ -38,9 +57,6 @@ _MATERIAL_IDS = {"price_cut", "price_increase", "repackaging"}
 
 
 def _generate_hypotheses(payload: dict) -> dict:
-    """Return the refined hypothesis set. Always includes the null (R7); includes
-    the deception hypothesis only when the caller judged deception plausible
-    from structural cues (FR-4: appears when the scenario warrants it)."""
     hyps: List[dict] = [dict(h) for h in _PRICING_TEMPLATE]
     if payload.get("deception_plausible"):
         hyps.append(dict(_DECEPTION))
@@ -48,44 +64,69 @@ def _generate_hypotheses(payload: dict) -> dict:
 
 
 def _judge_cell(payload: dict) -> dict:
-    """Consistency of one evidence item vs one hypothesis (A3.5).
-
-    Rules (from observable framing only):
-      - non-diagnostic noise (supports is None) is consistent with everything;
-      - an item pointing at hypothesis X is consistent with X, inconsistent with
-        other material hypotheses, and inconsistent with the null;
-      - the deception hypothesis is consistent with any material-pointing item
-        (a feint can mimic a real move), so material indicators never accrue as
-        evidence *against* deception. Deception is held down by its low base rate
-        and surfaced by the red team, not by the matrix.
-    """
-    supports = payload.get("supports")
+    """Consistency judged from content only (Precondition B, F4)."""
+    content = payload.get("evidence", {}).get("content", "")
     hyp = payload["hypothesis"]
     hid = hyp["id"]
     is_null = hyp.get("is_null", False)
     is_deception = hyp.get("is_deception", False)
+    bearing = infer_bearing(content)
 
-    if supports is None:
-        return {"judgment": "consistent", "rationale": "Non-diagnostic: consistent with all hypotheses."}
+    # F2: deception is scored when content explicitly names a planted operation.
     if is_deception:
-        return {"judgment": "consistent", "rationale": "A material signal could be a planted feint."}
-    if supports == hid:
-        return {"judgment": "consistent", "rationale": "Item points to this hypothesis."}
+        if describes_deception_operation(content):
+            return {
+                "judgment": "consistent",
+                "rationale": "Content confirms an active deception or planted feint.",
+            }
+        return {
+            "judgment": "not_applicable",
+            "rationale": "Deception is a meta-hypothesis; not scored without explicit cues.",
+        }
+
+    if describes_deception_operation(content):
+        if is_null:
+            return {
+                "judgment": "consistent",
+                "rationale": "Planted-feint intelligence is consistent with no genuine move.",
+            }
+        target = feint_target_bearing(content)
+        if target and hid == target:
+            return {
+                "judgment": "inconsistent",
+                "rationale": "Intelligence names this visible move as a planted feint.",
+            }
+        if hid in _MATERIAL_IDS:
+            return {
+                "judgment": "not_applicable",
+                "rationale": "Deception intelligence does not directly bear on this alternative.",
+            }
+        return {
+            "judgment": "not_applicable",
+            "rationale": "Deception intelligence does not directly bear on this alternative.",
+        }
+
+    if bearing is None:
+        return {"judgment": "consistent", "rationale": "Non-diagnostic: consistent with all hypotheses."}
+
+    # F4: forward-looking hiring/packaging signals do not strongly rule out a
+    # near-term price move on a different track.
+    if is_forward_looking(content) and hid in _MATERIAL_IDS and bearing != hid:
+        return {
+            "judgment": "not_applicable",
+            "rationale": "Forward-looking signal; weak bearing on a near-term pricing move.",
+        }
+
+    if bearing == hid:
+        return {"judgment": "consistent", "rationale": "Content supports this hypothesis."}
     if is_null:
         return {"judgment": "inconsistent", "rationale": "A material indicator is inconsistent with no change."}
-    if supports in _MATERIAL_IDS:
-        return {"judgment": "inconsistent", "rationale": "Item points to a different material outcome."}
-    if supports == "no_change" and hid in _MATERIAL_IDS:
-        return {"judgment": "inconsistent", "rationale": "An indicator of no change is inconsistent with a material pricing move."}
+    if bearing in _MATERIAL_IDS:
+        return {"judgment": "inconsistent", "rationale": "Content points to a different material outcome."}
     return {"judgment": "not_applicable", "rationale": "No clear bearing."}
 
 
 def _grade_evidence(payload: dict) -> dict:
-    """Infer reliability/credibility when not hand-fed (M2). Reliability comes
-    from source structure; credibility from corroboration and plausibility, kept
-    independent of reliability (R4). A reliable but uncorroborated surprising
-    claim keeps high reliability and low credibility (an off-diagonal grade)
-    rather than collapsing onto the diagonal."""
     primary = payload.get("primary", True)
     objective = payload.get("objective", True)
     corroborated = payload.get("corroborated", False)
@@ -103,7 +144,7 @@ def _grade_evidence(payload: dict) -> dict:
     if corroborated:
         credibility = "2"
     elif surprising:
-        credibility = "4"  # doubtful on its face, but NOT downgraded into silence
+        credibility = "4"
     else:
         credibility = "3"
 
@@ -130,6 +171,7 @@ def _check_assumptions(payload: dict) -> dict:
     leading = payload.get("leading_hypothesis_id", "no_change")
     corroboration = payload.get("independent_corroboration", 1)
     signal_count = payload.get("signal_count", 3)
+    diagnostic_count = payload.get("diagnostic_count", signal_count)
     assumptions = [
         {
             "statement": "Observed signals reflect genuine intent rather than an A/B test or staging artifact.",
@@ -143,22 +185,21 @@ def _check_assumptions(payload: dict) -> dict:
     gaps: List[str] = []
     if corroboration <= 1 and leading in _MATERIAL_IDS:
         gaps.append("Seek a second independent source confirming the leading pricing move.")
-    # F7: thin evidence stream — always flag a gap regardless of leading hypothesis.
-    if signal_count <= 2:
+    if diagnostic_count <= 2:
         gaps.append("Evidence stream is very thin; seek additional signals before narrowing the assessment.")
     return {"assumptions": assumptions, "gaps": gaps}
 
 
 def _red_team(payload: dict) -> dict:
-    """Narrative challenges atop the structural checks the node computes in code.
-
-    The mock raises a challenge when the structural cues the node passes in are
-    present. The hard, blocking decisions (single-source recompute, deception
-    cap) are made by code in redteam.py, not here."""
     challenges: List[str] = []
     if payload.get("single_source_dependent"):
         challenges.append(
             "Single-source dependency: the leading judgment collapses if the top origin is removed."
+        )
+    if payload.get("uniform_low_grade_dependency"):
+        challenges.append(
+            "Uniform low-grade dependency: every diagnostic item supporting the leading "
+            "hypothesis is below the quality floor with no primary objective corroboration."
         )
     if payload.get("deception_cue"):
         challenges.append(

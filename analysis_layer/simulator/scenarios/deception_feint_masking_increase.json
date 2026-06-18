@@ -1,0 +1,96 @@
+{
+  "id": "deception_feint_masking_increase",
+  "decision_type": "competitor_pricing_move",
+  "pir": "Will the tracked competitor make a material pricing change within 30 days, and if so in which direction and on which product line?",
+  "ground_truth": {
+    "state": "Cirrus is running a deliberate feint: it planted convincing Starter price-cut rumors in the trade press while internally approving a Pro-tier list-price increase from $99 to $129 effective next month. The sales organization has been briefed on the higher Pro pricing, a staged pricing page reflects the uplift, and the visible cut story is uncorroborated planted noise. The material action in the window is a genuine price increase on Pro, not the feint cut story.",
+    "resolves_to": "price_increase"
+  },
+  "signal_stream": [
+    {
+      "id": "df_plant_blog",
+      "content": "A SaaS-pricing trade blog claims, citing unnamed sources, that Cirrus will cut Starter pricing within weeks.",
+      "pir_ref": "PIR-pricing-7",
+      "timestamp": "2026-07-01T09:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "C",
+      "declared_information_credibility": "4",
+      "supports": "price_cut",
+      "role": "deception",
+      "true_source_reliability": "C"
+    },
+    {
+      "id": "df_plant_echo",
+      "content": "An industry newsletter repeated the trade-blog rumor that Cirrus will cut Starter pricing, citing the original blog post.",
+      "pir_ref": "PIR-pricing-7",
+      "timestamp": "2026-07-02T08:30:00Z",
+      "provenance_type": "relaying",
+      "echo_of": "df_plant_blog",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "D",
+      "declared_information_credibility": "4",
+      "supports": "price_cut",
+      "role": "echo",
+      "true_source_reliability": "D"
+    },
+    {
+      "id": "df_increase_brief",
+      "content": "A reliable contact inside Cirrus sales reports the team was briefed this week on new Pro-tier list pricing roughly 30 percent higher, effective at the start of next month.",
+      "pir_ref": "PIR-pricing-7",
+      "timestamp": "2026-07-03T13:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "B",
+      "declared_information_credibility": "2",
+      "supports": "price_increase",
+      "role": "genuine_indicator",
+      "true_source_reliability": "B"
+    },
+    {
+      "id": "df_increase_page",
+      "content": "A cached Cirrus pricing page draft shows the Pro plan at $129 per month instead of the current $99. The page is staged and not yet linked from the live site.",
+      "pir_ref": "PIR-pricing-7",
+      "timestamp": "2026-07-04T16:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "2",
+      "supports": "price_increase",
+      "role": "genuine_indicator",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "df_increase_ceo",
+      "content": "On a recent podcast the Cirrus CFO said the company is raising prices on the Pro tier to reflect enterprise-grade value and that a list-price uplift is imminent.",
+      "pir_ref": "PIR-pricing-7",
+      "timestamp": "2026-07-05T17:30:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "B",
+      "declared_information_credibility": "2",
+      "supports": "price_increase",
+      "role": "genuine_indicator",
+      "true_source_reliability": "B"
+    },
+    {
+      "id": "df_noise",
+      "content": "Cirrus announced a routine security patch for its mobile app.",
+      "pir_ref": "PIR-pricing-7",
+      "timestamp": "2026-07-06T10:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "1",
+      "supports": null,
+      "role": "noise",
+      "true_source_reliability": "A"
+    }
+  ],
+  "expectations": {
+    "leading_hypothesis": "price_increase",
+    "must_catch_weak_signal": false,
+    "must_resist_deception": true,
+    "confidence_tracks": "evidence_quality_not_volume"
+  }
+}
