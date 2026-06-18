@@ -43,6 +43,7 @@ def check_assumptions(state: AnalysisState, client: ModelClient) -> AnalysisStat
     _THIN_GAP = (
         "Evidence stream is very thin; seek additional signals before narrowing the assessment."
     )
+    # ponytail: single emission site for thin-stream gaps (mock no longer duplicates).
     if diagnostic_count <= 2 and _THIN_GAP not in state.gaps:
         state.gaps.append(_THIN_GAP)
     return state

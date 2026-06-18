@@ -38,12 +38,11 @@ def run_test_step(state: AnalysisState, settings: Settings | None = None) -> Ana
     evidence_for = _evidence_for(state)
 
     base = _base_rates_for(state, settings)
-    update_k = settings.update_k if settings.update_k is not None else _UPDATE_K
     posteriors: Dict[str, float] = {}
     for h in state.hypotheses:
         prior = base.get(h.id, 1.0 / max(len(state.hypotheses), 1))
         net = evidence_for.get(h.id, 0.0) - evidence_against.get(h.id, 0.0)
-        posteriors[h.id] = prior * math.exp(update_k * math.tanh(net))
+        posteriors[h.id] = prior * math.exp(_UPDATE_K * math.tanh(net))
 
     total = sum(posteriors.values()) or 1.0
     posteriors = {k: v / total for k, v in posteriors.items()}
@@ -125,6 +124,8 @@ def _aggregate_contributions(pairs: List[Tuple[float, float]], *, for_hypothesis
     if all(gw < scales.QUALITY_FLOOR for _, gw in pairs):
         val = max(c for c, _ in pairs)
         if for_hypothesis:
+            # ponytail: 0.2 dampens weak-unanimity lift; ceiling: may under-weight
+            # a lone weak-but-correct signal; upgrade: F5 calibration on battery.
             val *= 0.2
         return val
     return sum(c for c, _ in pairs)
@@ -163,6 +164,8 @@ def _apply_null_guard(
     if null is None:
         return posteriors
     boosted = dict(posteriors)
+    # ponytail: 1.5x null boost when only low-grade material support exists;
+    # ceiling: scenario-tuned fudge; upgrade: stronger grade weights (F1/F5).
     boosted[null.id] = boosted.get(null.id, 0.0) * 1.5
     return boosted
 
@@ -187,7 +190,13 @@ def _deception_confirmed(state: AnalysisState) -> bool:
 def _apply_deception_confirmation(
     state: AnalysisState, posteriors: Dict[str, float], evidence_for: Dict[str, float]
 ) -> Dict[str, float]:
-    """When deception is explicitly confirmed, it may lead over the null (Section 6)."""
+    """When deception is explicitly confirmed, it may lead over the null (Section 6).
+
+    ponytail: posterior multipliers below exist because deception's base rate is
+    low and matrix diagnosticity alone leaves no_change leading. Ceiling: tuned
+    on one scenario. Upgrade: raise deception prior or score deception cells
+    without a post-hoc boost once calibration data supports it.
+    """
     if "deception" not in posteriors or not _deception_confirmed(state):
         return posteriors
     adjusted = dict(posteriors)

@@ -75,9 +75,6 @@ class Settings:
     )
     confidence_weights: ConfidenceWeights = field(default_factory=ConfidenceWeights)
 
-    # Optional override for posterior update sharpness (ensemble test hook).
-    update_k: float | None = None
-
     # Base rates (the "outside view", PRD A6) for the v0 pricing decision type.
     # Updating starts from these and moves proportionally to diagnostic weight.
     base_rates: Dict[str, float] = field(

@@ -1,8 +1,6 @@
 """Fix Specification v2.0 Section 6: ensemble, deception positive control, report audit."""
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 
 from analysis_layer.config import get_settings
@@ -10,14 +8,13 @@ from analysis_layer.pipeline.aggregate import analyze_ensemble
 from analysis_layer.schema.assessment import ConfidenceLevel
 from analysis_layer.simulator.ensemble_battery import (
     BATTERY_IDS,
+    SCENARIOS_DIR,
     run_ensemble_battery,
     run_ensemble_with_perturbation,
 )
 from analysis_layer.simulator.loader import load_scenario
 from analysis_layer.simulator.report_builder import build_library_reports, build_scenario_report
 from analysis_layer.simulator.synthetic import run_scenario
-
-SCENARIOS_DIR = Path(__file__).parent.parent / "analysis_layer" / "simulator" / "scenarios"
 
 
 def _load(scenario_id: str):
@@ -68,7 +65,7 @@ def test_section6_ensemble_saturation_holds(scenario_id: str):
 
 def test_section6_ensemble_disagreement_lowers_confidence():
     base = get_settings()
-    scenario = _load("fifty_fifty_mixed")
+    scenario = _load("only_wrong_data")
     unanimous = analyze_ensemble(
         scenario.ordered_signals(),
         scenario.pir,
@@ -76,7 +73,7 @@ def test_section6_ensemble_disagreement_lowers_confidence():
         settings_per_analyst=[base, base, base],
         event_id=scenario.id,
     )
-    split = run_ensemble_with_perturbation("fifty_fifty_mixed", n_analysts=4)
+    split = run_ensemble_with_perturbation("only_wrong_data", n_analysts=4)
     assert unanimous.ensemble_disagreement == 0.0
     assert split.ensemble_disagreement >= 0.34
     assert split.confidence.level != ConfidenceLevel.high

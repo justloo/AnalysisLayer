@@ -32,6 +32,9 @@ BATTERY_IDS = (
     "deception_confirmed_planted_feint",
 )
 
+# T0 expects expectations.leading_hypothesis == ground_truth.resolves_to.
+FIX_SPEC_BATTERY_IDS = tuple(s for s in BATTERY_IDS if s != "deception_confirmed_planted_feint")
+
 SCENARIOS_DIR = Path(__file__).parent / "scenarios"
 
 
@@ -59,14 +62,14 @@ def skeptical_settings(base: Optional[Settings] = None) -> Settings:
     base = base or get_settings()
     rates = dict(base.base_rates)
     rates.update({"no_change": 0.72, "price_cut": 0.06, "price_increase": 0.08, "deception": 0.06})
-    return replace(base, base_rates=rates, update_k=0.8)
+    return replace(base, base_rates=rates)
 
 
 def materialist_settings(base: Optional[Settings] = None) -> Settings:
     base = base or get_settings()
     rates = dict(base.base_rates)
     rates.update({"no_change": 0.12, "price_cut": 0.42, "price_increase": 0.28, "deception": 0.03})
-    return replace(base, base_rates=rates, update_k=4.5)
+    return replace(base, base_rates=rates)
 
 
 def run_ensemble_battery(

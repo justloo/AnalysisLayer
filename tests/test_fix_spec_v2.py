@@ -2,32 +2,17 @@
 from __future__ import annotations
 
 import copy
-from pathlib import Path
 
 import pytest
 
 from analysis_layer.schema.assessment import ConfidenceLevel
 from analysis_layer.schema.signals import Scenario
+from analysis_layer.simulator.ensemble_battery import FIX_SPEC_BATTERY_IDS, SCENARIOS_DIR
 from analysis_layer.simulator.harness_checks import assert_scoreboard_self_consistency
 from analysis_layer.simulator.loader import load_library, load_scenario
 from analysis_layer.simulator.synthetic import run_scenario
 
-SCENARIOS_DIR = Path(__file__).parent.parent / "analysis_layer" / "simulator" / "scenarios"
-
-BATTERY_IDS = {
-    "price_cut_flow_baseline",
-    "deception_feint_masking_increase",
-    "weak_signal_early_cut",
-    "echo_inflation_no_real_signal",
-    "mirror_imaging_trap",
-    "noise_pileup_vs_signal",
-    "thin_evidence_honest_null",
-    "high_volume_rich_stream",
-    "minimal_single_signal",
-    "only_correct_data",
-    "only_wrong_data",
-    "fifty_fifty_mixed",
-}
+BATTERY_IDS = FIX_SPEC_BATTERY_IDS
 
 FROZEN_CORRECT = {
     "echo_inflation_no_real_signal",

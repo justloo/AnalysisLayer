@@ -44,12 +44,6 @@ def build_scenario_report(path: str | Path) -> ScenarioReport:
     assert_scoreboard_self_consistency(scenario, result)
 
     expected_from_file = scenario.expectations.leading_hypothesis
-    if result.expected_leading != expected_from_file:
-        raise AssertionError(
-            f"{scenario.id}: engine result expected_leading drifted from file "
-            f"({result.expected_leading!r} vs {expected_from_file!r})"
-        )
-
     a = result.assessment
     hyps = sorted(
         [

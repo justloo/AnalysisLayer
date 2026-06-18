@@ -170,8 +170,6 @@ def _classify_source_type(payload: dict) -> dict:
 def _check_assumptions(payload: dict) -> dict:
     leading = payload.get("leading_hypothesis_id", "no_change")
     corroboration = payload.get("independent_corroboration", 1)
-    signal_count = payload.get("signal_count", 3)
-    diagnostic_count = payload.get("diagnostic_count", signal_count)
     assumptions = [
         {
             "statement": "Observed signals reflect genuine intent rather than an A/B test or staging artifact.",
@@ -185,8 +183,7 @@ def _check_assumptions(payload: dict) -> dict:
     gaps: List[str] = []
     if corroboration <= 1 and leading in _MATERIAL_IDS:
         gaps.append("Seek a second independent source confirming the leading pricing move.")
-    if diagnostic_count <= 2:
-        gaps.append("Evidence stream is very thin; seek additional signals before narrowing the assessment.")
+    # Thin-stream gaps are emitted in assumptions.check_assumptions (F7).
     return {"assumptions": assumptions, "gaps": gaps}
 
 

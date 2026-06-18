@@ -1,7 +1,8 @@
 """Infer which material outcome evidence content points to (Precondition B).
 
-Used by the matrix judge and weak-signal handling. The harness `supports`
-field is ground truth for scoring only and must not drive pipeline reasoning.
+ponytail: regex keyword judge for the mock backend only. Ceiling: any phrasing
+outside these patterns scores as non-diagnostic. Upgrade path: delete this module
+when JUDGE_CELL uses the real model on content.
 """
 from __future__ import annotations
 
