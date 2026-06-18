@@ -21,7 +21,10 @@ def test_shadow_logs_without_acting(library):
     obs = shadow_run(library, store=store, baselines=baselines)
     assert len(obs) == len(library)
     assert len(store.all()) == len(library)
-    # The deception trap baseline (a human fooled into 'price_cut') disagrees with
-    # the layer, which is exactly the kind of signal shadow mode surfaces.
+    # The deception trap: with net diagnosticity, the engine correctly identifies
+    # price_cut as the leading hypothesis from the evidence (matching the fooled
+    # human baseline). But the red team catches the deception and returns the
+    # event for collection — the engine refuses to release, which is the real
+    # value over the fooled human.
     trap = next(o for o in obs if o.assessment_id == "deception_trap")
-    assert trap.agrees_with_baseline is False
+    assert trap.released is False

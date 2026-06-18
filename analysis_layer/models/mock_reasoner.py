@@ -69,12 +69,14 @@ def _judge_cell(payload: dict) -> dict:
         return {"judgment": "consistent", "rationale": "Non-diagnostic: consistent with all hypotheses."}
     if is_deception:
         return {"judgment": "consistent", "rationale": "A material signal could be a planted feint."}
-    if is_null:
-        return {"judgment": "inconsistent", "rationale": "A material indicator is inconsistent with no change."}
     if supports == hid:
         return {"judgment": "consistent", "rationale": "Item points to this hypothesis."}
+    if is_null:
+        return {"judgment": "inconsistent", "rationale": "A material indicator is inconsistent with no change."}
     if supports in _MATERIAL_IDS:
         return {"judgment": "inconsistent", "rationale": "Item points to a different material outcome."}
+    if supports == "no_change" and hid in _MATERIAL_IDS:
+        return {"judgment": "inconsistent", "rationale": "An indicator of no change is inconsistent with a material pricing move."}
     return {"judgment": "not_applicable", "rationale": "No clear bearing."}
 
 
@@ -127,6 +129,7 @@ def _classify_source_type(payload: dict) -> dict:
 def _check_assumptions(payload: dict) -> dict:
     leading = payload.get("leading_hypothesis_id", "no_change")
     corroboration = payload.get("independent_corroboration", 1)
+    signal_count = payload.get("signal_count", 3)
     assumptions = [
         {
             "statement": "Observed signals reflect genuine intent rather than an A/B test or staging artifact.",
@@ -140,6 +143,9 @@ def _check_assumptions(payload: dict) -> dict:
     gaps: List[str] = []
     if corroboration <= 1 and leading in _MATERIAL_IDS:
         gaps.append("Seek a second independent source confirming the leading pricing move.")
+    # F7: thin evidence stream — always flag a gap regardless of leading hypothesis.
+    if signal_count <= 2:
+        gaps.append("Evidence stream is very thin; seek additional signals before narrowing the assessment.")
     return {"assumptions": assumptions, "gaps": gaps}
 
 

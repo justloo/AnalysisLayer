@@ -1,0 +1,95 @@
+{
+  "id": "weak_signal_early_cut",
+  "decision_type": "competitor_pricing_move",
+  "pir": "Will the tracked competitor make a material pricing change within 30 days, and if so in which direction and on which product line?",
+  "ground_truth": {
+    "state": "Cirrus has quietly finalized a cut to its Starter plan, set to launch within days, but nothing is public yet and the decision is held closely. The surface picture looks calm and stable: the public pricing page has not moved in over a year and analysts still describe Cirrus pricing as stable. The only indication of the imminent cut is a single, consistently accurate, well-placed source. The correct read is that a high-reliability source reporting something surprising and uncorroborated must be escalated and weighted, not buried for lacking corroboration. The material action in the window is a price cut on the Starter line.",
+    "resolves_to": "price_cut"
+  },
+  "signal_stream": [
+    {
+      "id": "signal_1",
+      "content": "A consistently accurate, well-placed former-employee contact reports that Cirrus has quietly finalized a Starter price cut to launch within days, although nothing has been made public.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-05-04T09:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "4",
+      "supports": "price_cut",
+      "role": "weak_signal",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_2",
+      "content": "The public Cirrus pricing page has not changed in over fourteen months.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-05-04T09:05:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "1",
+      "supports": "no_change",
+      "role": "genuine_indicator",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_3",
+      "content": "A market analyst note describes Cirrus pricing as stable and competitive, with no expected near-term moves.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-05-03T14:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "B",
+      "declared_information_credibility": "2",
+      "supports": "no_change",
+      "role": "genuine_indicator",
+      "true_source_reliability": "B"
+    },
+    {
+      "id": "signal_4",
+      "content": "Cirrus published a routine product-update blog post announcing a new reporting dashboard.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-05-02T11:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "1",
+      "supports": null,
+      "role": "noise",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_5",
+      "content": "A Glassdoor review mentions a routine quarterly all-hands meeting at Cirrus.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-04-30T16:30:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "C",
+      "declared_information_credibility": "3",
+      "supports": null,
+      "role": "noise",
+      "true_source_reliability": "C"
+    },
+    {
+      "id": "signal_6",
+      "content": "Cirrus announced a routine technology partnership with a monitoring vendor.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-05-01T10:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "1",
+      "supports": null,
+      "role": "noise",
+      "true_source_reliability": "A"
+    }
+  ],
+  "expectations": {
+    "leading_hypothesis": "no_change",
+    "must_catch_weak_signal": true,
+    "must_resist_deception": false,
+    "confidence_tracks": "evidence_quality_not_volume"
+  }
+}

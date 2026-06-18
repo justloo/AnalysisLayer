@@ -1,0 +1,24 @@
+# Fix Specification v2.0 (Consolidated): Scoring, Confidence, Saturation, and Test-Harness Integrity
+
+**Status:** Supersedes Fix Specification v1.1 in full. This is the single authoritative list of everything identified as needing a fix across the deception-overtake diagnosis, the five-scenario mechanism battery, and the five-scenario volume-and-purity battery.
+**Scope:** The reasoning core's scoring mechanics, the confidence and likelihood model, and the test harness's reporting integrity. No collection, dissemination, or schema changes required.
+**How to read this.** Preconditions come first because they determine whether anything else can be graded honestly. Engine fixes are F1 through F8, each with the evidence that proved it, the rule it violates, and the implementable fix. The before-and-after table at the end is hand-verified against the original scenario JSON files, not against any report's own summary labels, for reasons Precondition A makes clear.
+
+---
+
+## Precondition A. The scoreboard's "expected forecast" field cannot currently be trusted.
+
+This is the most urgent finding in the whole exercise, because it is not a reasoning defect, it is a defect in how success is measured, and it has now hidden two real failures behind a manufactured pass.
+
+**First occurrence.** In the mechanism battery, the report's `weak_signal_early_cut` card displayed Expected Forecast as `no_change` and Actual Forecast as `no_change`, marked PASS. The scenario file's `expectations.leading_hypothesis` is `price_cut`. The same report's own embedded ground-truth narrative for that scenario ends with "the material action in the window is a price cut on the Starter line," directly contradicting the Expected Forecast field displayed two paragraphs above it.
+
+**Second occurrence.** In the volume-and-purity battery, the report's summary table listed `only_wrong_data` as Expected `price_cut`, Actual `price_cut`, PASS. The scenario file's `expectations.leading_hypothesis` and `ground_truth.resolves_to` are both `no_change`
+<truncated 21592 bytes>
+ but probability exceeds the lexicon ceiling | Miscalibrated | F8 | `repackaging` leads, clamped ≤99% |
+| `thin_evidence_honest_null` | `no_change` led, correct, but confidence reported moderate with zero gaps on a thin stream | Miscalibrated | F7 | `no_change` leads, confidence low, gap named |
+| `high_volume_rich_stream` | `price_cut` led at exactly 100.00%, violates Cromwell's rule | Miscalibrated | F8 | `price_cut` leads, clamped ≤99% |
+| `minimal_single_signal` | `price_cut` led at 37.50%, "unlikely," confidence low, red team returned for collection | Clean | none | unchanged |
+| `only_correct_data` | `price_increase` led at 99.98%, exceeds the lexicon ceiling | Miscalibrated | F8 | `price_increase` leads, clamped ≤99% |
+| `only_wrong_data` | `price_cut` led at 94.81%; ground truth is `no_change` | Wrong | F1, F3 | `no_change` leads or strongly competitive, confidence low |
+| `fifty_fifty_mixed` | `price_cut` led at 81.63%, "very likely," correctly discriminated by content quality | Clean | none | unchanged |
+

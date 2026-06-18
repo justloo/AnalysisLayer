@@ -1,0 +1,95 @@
+{
+  "id": "only_correct_data",
+  "decision_type": "competitor_pricing_move",
+  "pir": "Will the tracked competitor make a material pricing change within 30 days, and if so in which direction and on which product line?",
+  "ground_truth": {
+    "state": "Cirrus has approved a genuine, material price increase on its Enterprise tier, and every signal available to the system in this window is accurate and consistent with that fact. There is no noise, no contradiction, and no irrelevant material mixed in. This is the cleanest possible evidentiary environment. The correct read is a confident, well-supported price_increase judgment; if the engine cannot reach this conclusion cleanly here, the defect lies upstream of any noise- or volume-related complexity.",
+    "resolves_to": "price_increase"
+  },
+  "signal_stream": [
+    {
+      "id": "signal_1",
+      "content": "A reliable contact in Cirrus finance reports that leadership approved a list-price increase on the Enterprise tier, effective within the month.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-10-20T09:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "B",
+      "declared_information_credibility": "2",
+      "supports": "price_increase",
+      "role": "genuine_indicator",
+      "true_source_reliability": "B"
+    },
+    {
+      "id": "signal_2",
+      "content": "An updated Cirrus sales-compensation plan raises quota credit for higher-contract-value Enterprise deals.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-10-21T11:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "2",
+      "supports": "price_increase",
+      "role": "genuine_indicator",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_3",
+      "content": "A leaked Cirrus enterprise order form shows list rates revised upward versus the prior version.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-10-22T15:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "1",
+      "supports": "price_increase",
+      "role": "genuine_indicator",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_4",
+      "content": "Procurement-intelligence data shows Cirrus's average effective Enterprise contract price trending up over the last quarter.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-10-23T10:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "2",
+      "supports": "price_increase",
+      "role": "genuine_indicator",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_5",
+      "content": "A Cirrus account executive privately told a prospect that list pricing is going up next quarter and recommended locking in current rates now.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-10-24T13:30:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "B",
+      "declared_information_credibility": "3",
+      "supports": "price_increase",
+      "role": "genuine_indicator",
+      "true_source_reliability": "B"
+    },
+    {
+      "id": "signal_6",
+      "content": "Cirrus updated its public Enterprise request-a-quote page to reference updated 2026 pricing.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-10-25T09:30:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "2",
+      "supports": "price_increase",
+      "role": "genuine_indicator",
+      "true_source_reliability": "A"
+    }
+  ],
+  "expectations": {
+    "leading_hypothesis": "price_increase",
+    "must_catch_weak_signal": false,
+    "must_resist_deception": false,
+    "confidence_tracks": "evidence_quality_not_volume"
+  }
+}

@@ -26,6 +26,7 @@ def check_assumptions(state: AnalysisState, client: ModelClient) -> AnalysisStat
             "independent_corroboration": corroboration,
             "evidence_summaries": [e.content for e in state.evidence],
             "gaps": list(state.gaps),
+            "signal_count": len(state.evidence),
         },
         Tier.strong,
     )

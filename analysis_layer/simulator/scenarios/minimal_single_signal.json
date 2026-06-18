@@ -1,0 +1,30 @@
+{
+  "id": "minimal_single_signal",
+  "decision_type": "competitor_pricing_move",
+  "pir": "Will the tracked competitor make a material pricing change within 30 days, and if so in which direction and on which product line?",
+  "ground_truth": {
+    "state": "Cirrus has, in fact, decided to cut its Starter plan price within the window, but the collection process available in this instance is unusually limited: only a single, moderately reliable report ever reaches the system, with no further corroboration, no public artifact, and no contrary signal either. The correct read is that the engine should lean toward the one available indicator since nothing contradicts it, but it must not manufacture high confidence from a single, uncorroborated data point; confidence should remain low and the lack of further coverage should be named explicitly as a gap. The material action in the window is a price cut on the Starter line.",
+    "resolves_to": "price_cut"
+  },
+  "signal_stream": [
+    {
+      "id": "signal_1",
+      "content": "A moderately reliable contact reports that Cirrus has decided to cut its Starter plan price by roughly 15 percent, effective next month.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-10-15T09:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "B",
+      "declared_information_credibility": "3",
+      "supports": "price_cut",
+      "role": "genuine_indicator",
+      "true_source_reliability": "B"
+    }
+  ],
+  "expectations": {
+    "leading_hypothesis": "price_cut",
+    "must_catch_weak_signal": false,
+    "must_resist_deception": false,
+    "confidence_tracks": "evidence_quality_not_volume"
+  }
+}

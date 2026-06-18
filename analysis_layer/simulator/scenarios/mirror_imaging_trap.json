@@ -1,0 +1,108 @@
+{
+  "id": "mirror_imaging_trap",
+  "decision_type": "competitor_pricing_move",
+  "pir": "Will the tracked competitor make a material pricing change within 30 days, and if so in which direction and on which product line?",
+  "ground_truth": {
+    "state": "A new aggressive low-cost entrant, BudgetStack, has entered the market undercutting everyone on headline price. The intuitive, generic assumption is that any vendor facing this pressure responds by cutting its own prices, but that assumption does not hold for Cirrus specifically. Cirrus's CEO has explicitly stated the company will not compete on price, Cirrus has opened a hiring line for bundling enterprise features into its Growth tier, a leaked roadmap shows premium features being added to that tier with no listed price change, and Cirrus's own documented history shows that the last time a low-cost entrant appeared, its response was feature bundling rather than a price cut. The correct read requires not assuming Cirrus will act the way a generic vendor, or the operator, would. The material action in the window is a repackaging of the Growth tier, not a price cut.",
+    "resolves_to": "repackaging"
+  },
+  "signal_stream": [
+    {
+      "id": "signal_1",
+      "content": "BudgetStack, a new entrant, launched aggressively low pricing and is generating significant press coverage for undercutting the market.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-08-01T09:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "1",
+      "supports": null,
+      "role": "noise",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_2",
+      "content": "An industry analyst note generically observes that vendors facing a low-cost entrant typically respond by cutting their own prices to defend market share.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-08-02T10:30:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "C",
+      "declared_information_credibility": "3",
+      "supports": "price_cut",
+      "role": "noise",
+      "true_source_reliability": "C"
+    },
+    {
+      "id": "signal_3",
+      "content": "On Cirrus's most recent earnings call, the CEO stated explicitly that the company will not compete on price and intends to double down on premium value and enterprise features.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-08-04T14:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "B",
+      "declared_information_credibility": "2",
+      "supports": "repackaging",
+      "role": "genuine_indicator",
+      "true_source_reliability": "B"
+    },
+    {
+      "id": "signal_4",
+      "content": "Cirrus posted a job opening for a Senior Product Manager, Enterprise Feature Bundling, tasked with packaging premium analytics and single sign-on into the Growth tier.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-08-05T11:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "2",
+      "supports": "repackaging",
+      "role": "genuine_indicator",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_5",
+      "content": "A leaked Cirrus product roadmap shows new enterprise-grade features, including single sign-on and audit logs, being added to the Growth tier with no listed price change.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-08-07T16:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "2",
+      "supports": "repackaging",
+      "role": "genuine_indicator",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_6",
+      "content": "The Cirrus public pricing page has shown no change to any tier despite BudgetStack's entry several weeks ago.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-08-09T09:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "1",
+      "supports": "repackaging",
+      "role": "genuine_indicator",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_7",
+      "content": "A company history note, drawn from past press coverage, documents that two years ago, when a different low-cost entrant appeared, Cirrus's response was to bundle additional features into its mid-tier rather than cut prices.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-08-10T13:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "B",
+      "declared_information_credibility": "2",
+      "supports": "repackaging",
+      "role": "genuine_indicator",
+      "true_source_reliability": "B"
+    }
+  ],
+  "expectations": {
+    "leading_hypothesis": "repackaging",
+    "must_catch_weak_signal": false,
+    "must_resist_deception": false,
+    "confidence_tracks": "evidence_quality_not_volume"
+  }
+}

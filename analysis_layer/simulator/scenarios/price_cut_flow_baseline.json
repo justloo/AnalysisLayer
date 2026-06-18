@@ -1,0 +1,136 @@
+{
+  "id": "price_cut_flow_baseline",
+  "decision_type": "competitor_pricing_move",
+  "pir": "Will the tracked competitor make a material pricing change within 30 days, and if so in which direction and on which product line?",
+  "ground_truth": {
+    "state": "The tracked competitor, Cirrus, has internally approved a permanent reduction of its entry-level Starter plan from $49 to $39 per month, effective March 1, to blunt a cheaper challenger. The decision is approved, the sales team has been briefed, a staging pricing page already reflects the new figure, and marketing is seeding more-accessible messaging. The intensified discounting and the rumor circulating in the trade press are downstream of this real, decided change. A separate Packaging and Monetization job posting reflects a slower, parallel tier-restructuring effort and is not the pricing event itself. The decision resolves as a genuine, material price cut on the Starter line within the window.",
+    "resolves_to": "price_cut"
+  },
+  "signal_stream": [
+    {
+      "id": "signal_1",
+      "content": "Cirrus has run back-to-back limited-time 20 percent discounts on the Starter plan for six straight weeks, which is unusual for them and well beyond their normal promo cadence.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-02-03T09:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "B",
+      "declared_information_credibility": "2",
+      "supports": "price_cut",
+      "role": "genuine_indicator",
+      "true_source_reliability": "B"
+    },
+    {
+      "id": "signal_2",
+      "content": "Cirrus posted a job opening for a Senior Product Manager, Packaging and Monetization, tasked with rethinking plan tiers and bundling.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-02-05T14:30:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "2",
+      "supports": null,
+      "role": "noise",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_3",
+      "content": "On a widely shared podcast, the Cirrus CEO said the company wants to lower the barrier to entry and make it a no-brainer for smaller teams to get started.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-02-08T17:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "B",
+      "declared_information_credibility": "3",
+      "supports": "price_cut",
+      "role": "genuine_indicator",
+      "true_source_reliability": "B"
+    },
+    {
+      "id": "signal_4",
+      "content": "A SaaS-pricing trade blog, PricingPulse, published a post claiming that sources say Cirrus is about to drop Starter pricing.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-02-10T11:15:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "C",
+      "declared_information_credibility": "3",
+      "supports": "price_cut",
+      "role": "genuine_indicator",
+      "true_source_reliability": "C"
+    },
+    {
+      "id": "signal_5",
+      "content": "An aggregator newsletter repeated the PricingPulse claim that Cirrus will cut Starter pricing, linking back to and citing the PricingPulse post.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-02-11T08:45:00Z",
+      "provenance_type": "relaying",
+      "echo_of": "signal_4",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "D",
+      "declared_information_credibility": "3",
+      "supports": "price_cut",
+      "role": "echo",
+      "true_source_reliability": "D"
+    },
+    {
+      "id": "signal_6",
+      "content": "A growth marketer restated the same PricingPulse rumor about a Cirrus Starter price cut in a LinkedIn post, attributing it to the PricingPulse report.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-02-12T19:20:00Z",
+      "provenance_type": "relaying",
+      "echo_of": "signal_4",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "E",
+      "declared_information_credibility": "4",
+      "supports": "price_cut",
+      "role": "echo",
+      "true_source_reliability": "E"
+    },
+    {
+      "id": "signal_7",
+      "content": "Cirrus announced the opening of a new Frankfurt data-center region to meet European data-residency and compliance requirements.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-02-14T10:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "1",
+      "supports": null,
+      "role": "noise",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_8",
+      "content": "A usually-reliable contact inside the Cirrus sales organization reports the team was briefed this week on new Starter-tier pricing set roughly 20 percent lower, taking effect at the start of next month.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-02-17T13:10:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "B",
+      "declared_information_credibility": "2",
+      "supports": "price_cut",
+      "role": "genuine_indicator",
+      "true_source_reliability": "B"
+    },
+    {
+      "id": "signal_9",
+      "content": "A cached version of the Cirrus pricing page, surfaced through their CDN, shows the Starter plan at $39 per month instead of the current $49. The page is staged and not yet linked from the live site.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-02-19T16:40:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "2",
+      "supports": "price_cut",
+      "role": "genuine_indicator",
+      "true_source_reliability": "A"
+    }
+  ],
+  "expectations": {
+    "leading_hypothesis": "price_cut",
+    "must_catch_weak_signal": false,
+    "must_resist_deception": false,
+    "confidence_tracks": "evidence_quality_not_volume"
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "id": "only_wrong_data",
+  "decision_type": "competitor_pricing_move",
+  "pir": "Will the tracked competitor make a material pricing change within 30 days, and if so in which direction and on which product line?",
+  "ground_truth": {
+    "state": "No internal Cirrus decision to change pricing exists in this window; the company's pricing genuinely remains unchanged. However, every signal that reaches the system in this instance is independently sourced, individually low-to-mid grade, and factually wrong, each arising from a different, unrelated error: stale information, a misread temporary promotion, an unconfirmed internal report later reversed, third-hand competitor gossip, an unsubstantiated social-media claim, and a misfired pricing-tracking artifact. None of it is a deliberate plant, and none of it is true, but all of it happens to point toward a price cut. The correct read is that source grade should genuinely cap how much weight a uniformly low-quality, uncorroborated cluster of claims can carry, regardless of how many independent voices happen to agree, and the engine should not reach a confident, wrong directional call on this basis; no_change should remain live or leading. This scenario does not expect the engine to divine the truth from nothing; it tests whether agreement among weak sources is correctly resisted rather than mistaken for strength.",
+    "resolves_to": "no_change"
+  },
+  "signal_stream": [
+    {
+      "id": "signal_1",
+      "content": "A former Cirrus employee who left over a year ago posted on a forum claiming the company was definitely planning a price cut when they left, with no current insight into whether that plan ever proceeded.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-10-30T09:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "D",
+      "declared_information_credibility": "4",
+      "supports": "price_cut",
+      "role": "noise",
+      "true_source_reliability": "D"
+    },
+    {
+      "id": "signal_2",
+      "content": "A regional reseller misinterpreted a 48-hour flash promotion as a permanent price change and told a customer that pricing had gone down for good.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-10-31T11:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "C",
+      "declared_information_credibility": "4",
+      "supports": "price_cut",
+      "role": "noise",
+      "true_source_reliability": "C"
+    },
+    {
+      "id": "signal_3",
+      "content": "An analyst, working from month-old leaked information that was later reversed internally, published a research note predicting an imminent Starter price cut, unaware the plan had been called off.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-11-01T10:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "C",
+      "declared_information_credibility": "4",
+      "supports": "price_cut",
+      "role": "noise",
+      "true_source_reliability": "C"
+    },
+    {
+      "id": "signal_4",
+      "content": "A competitor's sales team has reportedly been telling prospects, unverified, that Cirrus is about to get cheaper, apparently as a delay tactic.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-11-02T14:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "E",
+      "declared_information_credibility": "5",
+      "supports": "price_cut",
+      "role": "noise",
+      "true_source_reliability": "E"
+    },
+    {
+      "id": "signal_5",
+      "content": "A social media account with no apparent industry credibility claims insider knowledge of a Cirrus price cut coming any day now.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-11-03T16:30:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "D",
+      "declared_information_credibility": "5",
+      "supports": "price_cut",
+      "role": "noise",
+      "true_source_reliability": "D"
+    },
+    {
+      "id": "signal_6",
+      "content": "A third-party pricing-tracking tool flagged a temporary A and B test price variant shown to a small user segment as if it were a permanent global price change.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-11-04T09:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "C",
+      "declared_information_credibility": "4",
+      "supports": "price_cut",
+      "role": "noise",
+      "true_source_reliability": "C"
+    }
+  ],
+  "expectations": {
+    "leading_hypothesis": "price_cut",
+    "must_catch_weak_signal": false,
+    "must_resist_deception": false,
+    "confidence_tracks": "evidence_quality_not_volume"
+  }
+}

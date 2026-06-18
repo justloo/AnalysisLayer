@@ -61,6 +61,8 @@ class AnalysisState(BaseModel):
     posteriors: Dict[str, float] = Field(default_factory=dict)
     # Diagnostic evidence weight against each hypothesis (R9). Keyed by id.
     evidence_against: Dict[str, float] = Field(default_factory=dict)
+    # Diagnostic evidence weight *for* each hypothesis (F1). Keyed by id.
+    evidence_for: Dict[str, float] = Field(default_factory=dict)
     leading_hypothesis_id: Optional[str] = None
 
     assumptions: List[Assumption] = Field(default_factory=list)

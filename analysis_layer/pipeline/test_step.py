@@ -1,15 +1,16 @@
 """FR-6, Hypothesis testing and updating (PRD A3.6, A6).
 
-Reach the leading judgment by elimination: the surviving hypothesis is the one
-with the least diagnostic evidence against it (R9), reached by disconfirmation
-rather than by accumulating support. Updating starts from base rates (the
-outside view) and moves in proportion to diagnostic weight, a lot but not too
-much (R10). Non-diagnostic evidence does not move the judgment (R8/R11).
+Reach the leading judgment via grade-weighted net diagnosticity: for each
+hypothesis, compute the balance of diagnostic evidence *for* vs *against* it,
+weighted by Admiralty grade (R4, R8). Updating starts from base rates (the
+outside view) and moves in proportion to net diagnostic weight, a lot but not
+too much (R10). Non-diagnostic evidence does not move the judgment (R8/R11).
 
-Mechanics: only diagnostic *inconsistency* penalizes a hypothesis (pure
-disconfirmation; confirmation does not inflate a hypothesis). The posterior is
-the base rate decayed by the diagnostic evidence against each hypothesis, then
-normalized. Rejected alternatives are retained and ranked with reasons.
+Mechanics (F1 fix): the posterior is the base rate shifted by the net balance
+of grade-weighted diagnostic evidence (for minus against), then normalized.
+A hypothesis with uniformly low-grade support receives proportionally less
+lift; one with zero evidence in either direction stays near its prior.
+Rejected alternatives are retained and ranked with reasons (R9).
 """
 from __future__ import annotations
 
@@ -27,45 +28,62 @@ _UPDATE_K = 2.5
 # A live alternative must retain at least this share of the leading posterior;
 # below it the hypothesis is marked rejected (but kept, with its reason, R9).
 _LIVE_ALTERNATIVE_FLOOR = 0.5
+# Cromwell's Rule (F8): no hypothesis may reach literal 0 or 1. The ICD 203
+# lexicon caps at "almost certain" (95-99%); a 100% posterior is epistemically
+# indefensible. Floor is 0.5% so even a thoroughly-refuted hypothesis retains a
+# residual probability.
+_CROMWELL_FLOOR = 0.005
 
 
 def run_test_step(state: AnalysisState, settings: Settings | None = None) -> AnalysisState:
     settings = settings or get_settings()
     evidence_against = _evidence_against(state)
+    evidence_for = _evidence_for(state)
 
     base = _base_rates_for(state, settings)
     posteriors: Dict[str, float] = {}
     for h in state.hypotheses:
         prior = base.get(h.id, 1.0 / max(len(state.hypotheses), 1))
-        posteriors[h.id] = prior * math.exp(-_UPDATE_K * evidence_against.get(h.id, 0.0))
+        net = evidence_for.get(h.id, 0.0) - evidence_against.get(h.id, 0.0)
+        posteriors[h.id] = prior * math.exp(_UPDATE_K * net)
 
+    total = sum(posteriors.values()) or 1.0
+    posteriors = {k: v / total for k, v in posteriors.items()}
+
+    # Cromwell's Rule: clamp and renormalize so no posterior is literal 0 or 1.
+    posteriors = {k: max(_CROMWELL_FLOOR, min(1.0 - _CROMWELL_FLOOR, v))
+                  for k, v in posteriors.items()}
     total = sum(posteriors.values()) or 1.0
     posteriors = {k: v / total for k, v in posteriors.items()}
 
     leading_id = max(posteriors, key=posteriors.get)
     state.posteriors = posteriors
     state.evidence_against = evidence_against
+    state.evidence_for = evidence_for
     state.leading_hypothesis_id = leading_id
 
     leading_p = posteriors[leading_id]
     for h in state.hypotheses:
+        net_h = evidence_for.get(h.id, 0.0) - evidence_against.get(h.id, 0.0)
         h.relative_likelihood = round(posteriors[h.id], 4)
         if h.id == leading_id:
             h.status = HypothesisStatus.leading
             h.rationale = (
-                f"Least diagnostic evidence against it ({evidence_against.get(h.id, 0.0):.2f}); "
-                f"highest posterior after base-rate updating ({leading_p:.2f})."
+                f"Highest net diagnosticity ({net_h:+.2f} = "
+                f"{evidence_for.get(h.id, 0.0):.2f} for, "
+                f"{evidence_against.get(h.id, 0.0):.2f} against); "
+                f"posterior {leading_p:.2f}."
             )
         elif leading_p > 0 and posteriors[h.id] >= _LIVE_ALTERNATIVE_FLOOR * leading_p:
             h.status = HypothesisStatus.live_alternative
             h.rationale = (
-                f"Remains live: posterior {posteriors[h.id]:.2f} with "
-                f"{evidence_against.get(h.id, 0.0):.2f} diagnostic evidence against."
+                f"Remains live: net diagnosticity {net_h:+.2f}, "
+                f"posterior {posteriors[h.id]:.2f}."
             )
         else:
             h.status = HypothesisStatus.rejected
             h.rationale = (
-                f"Set aside: {evidence_against.get(h.id, 0.0):.2f} diagnostic evidence against; "
+                f"Set aside: net diagnosticity {net_h:+.2f}, "
                 f"posterior {posteriors[h.id]:.2f}."
             )
     return state
@@ -93,6 +111,30 @@ def _evidence_against(state: AnalysisState) -> Dict[str, float]:
     for (hypothesis_id, _origin), contribution in by_origin.items():
         against[hypothesis_id] = against.get(hypothesis_id, 0.0) + contribution
     return {k: round(v, 4) for k, v in against.items()}
+
+
+def _evidence_for(state: AnalysisState) -> Dict[str, float]:
+    """Diagnostic, grade-weighted evidence *consistent* with each hypothesis (F1).
+
+    Symmetric to _evidence_against: relays are collapsed to their origin (R6),
+    and contributions are grade-weighted so low-quality agreement cannot
+    substitute for high-quality corroboration."""
+    by_origin: Dict[tuple, float] = {}
+    for cell in state.matrix:
+        if cell.judgment != MatrixJudgment.consistent:
+            continue
+        e = state.evidence_by_id(cell.evidence_id)
+        if e is None or e.diagnostic_value <= 0:
+            continue
+        weight = scales.grade_weight(e.source_reliability, e.information_credibility)
+        contribution = e.diagnostic_value * weight
+        key = (cell.hypothesis_id, e.origin_id)
+        by_origin[key] = max(by_origin.get(key, 0.0), contribution)
+
+    support: Dict[str, float] = {h.id: 0.0 for h in state.hypotheses}
+    for (hypothesis_id, _origin), contribution in by_origin.items():
+        support[hypothesis_id] = support.get(hypothesis_id, 0.0) + contribution
+    return {k: round(v, 4) for k, v in support.items()}
 
 
 def _base_rates_for(state: AnalysisState, settings: Settings) -> Dict[str, float]:

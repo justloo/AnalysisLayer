@@ -40,7 +40,9 @@ class ConfidenceWeights:
     question_coverage: float = 0.15
 
     # Any factor at or below this hard-caps confidence to "low" (weakest link).
-    severe_weakness_threshold: float = 0.34
+    # F3: aligned with the low/moderate boundary (0.4) so that uniformly poor
+    # evidence grade (which will be < 0.4) triggers the cap.
+    severe_weakness_threshold: float = 0.40
     # Blend of the weakest factor vs. the weighted mean when no severe weakness.
     weakest_link_share: float = 0.4
 

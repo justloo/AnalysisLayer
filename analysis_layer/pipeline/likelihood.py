@@ -24,7 +24,10 @@ ICD203_BANDS = [
 
 
 def term_for_probability(p: float) -> Likelihood:
-    p = max(0.0, min(1.0, p))
+    # Clamp to the ICD 203 lexicon bounds (F8, Cromwell's Rule). The lexicon
+    # runs from "almost no chance" (1-5%) to "almost certain" (95-99%); values
+    # outside that range are epistemically inexpressible.
+    p = max(0.01, min(0.99, p))
     for term, band in ICD203_BANDS:
         if p <= band.high:
             return Likelihood(term=term, probability_band=band)

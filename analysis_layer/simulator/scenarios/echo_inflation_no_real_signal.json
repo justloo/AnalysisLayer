@@ -1,0 +1,110 @@
+{
+  "id": "echo_inflation_no_real_signal",
+  "decision_type": "competitor_pricing_move",
+  "pir": "Will the tracked competitor make a material pricing change within 30 days, and if so in which direction and on which product line?",
+  "ground_truth": {
+    "state": "No internal Cirrus decision to change pricing exists in this window. A small pricing blog speculated, with no real source, that Cirrus might cut its Starter plan, prompted only by noticing a routine seasonal promotion. The speculation was then echoed by two aggregator outlets that simply cited the original post, and separately picked up by a second small blog reacting to the same routine promotion. None of this reflects an actual decision; it is an echo chamber feeding on one ordinary, recurring promo. Cirrus leadership has reaffirmed pricing stability internally. The correct read is that volume of repetition is not corroboration, and the material outcome in the window is no change.",
+    "resolves_to": "no_change"
+  },
+  "signal_stream": [
+    {
+      "id": "signal_1",
+      "content": "A small pricing blog speculates, without naming any source, that Cirrus might be about to cut its Starter plan.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-06-02T09:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "D",
+      "declared_information_credibility": "4",
+      "supports": "price_cut",
+      "role": "noise",
+      "true_source_reliability": "D"
+    },
+    {
+      "id": "signal_2",
+      "content": "An aggregator newsletter repeats the claim that Cirrus might cut Starter pricing, citing and linking the original blog post.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-06-02T15:30:00Z",
+      "provenance_type": "relaying",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "D",
+      "declared_information_credibility": "4",
+      "supports": "price_cut",
+      "role": "echo",
+      "true_source_reliability": "D",
+      "echo_of": "signal_1"
+    },
+    {
+      "id": "signal_3",
+      "content": "A second aggregator account restates the same Starter price-cut speculation, attributing it to the original blog post.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-06-03T10:10:00Z",
+      "provenance_type": "relaying",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "E",
+      "declared_information_credibility": "4",
+      "supports": "price_cut",
+      "role": "echo",
+      "true_source_reliability": "E",
+      "echo_of": "signal_1"
+    },
+    {
+      "id": "signal_4",
+      "content": "A separate, unaffiliated blog raises similar Starter price-cut speculation after independently noticing the same ongoing promotion, without citing the first blog.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-06-04T12:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "C",
+      "declared_information_credibility": "4",
+      "supports": "price_cut",
+      "role": "noise",
+      "true_source_reliability": "C"
+    },
+    {
+      "id": "signal_5",
+      "content": "Cirrus is running its normal recurring seasonal promotion on the Starter plan, the same discount it has offered at this time in prior years.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-06-01T08:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "2",
+      "supports": null,
+      "role": "noise",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_6",
+      "content": "Cirrus announced a routine security-compliance certification renewal.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-06-05T09:30:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "1",
+      "supports": null,
+      "role": "noise",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_7",
+      "content": "A usually-reliable industry analyst reports that Cirrus leadership reaffirmed pricing stability on its most recent earnings call, with no planned near-term changes.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-06-06T14:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "B",
+      "declared_information_credibility": "2",
+      "supports": "no_change",
+      "role": "genuine_indicator",
+      "true_source_reliability": "B"
+    }
+  ],
+  "expectations": {
+    "leading_hypothesis": "no_change",
+    "must_catch_weak_signal": false,
+    "must_resist_deception": false,
+    "confidence_tracks": "evidence_quality_not_volume"
+  }
+}

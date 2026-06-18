@@ -55,25 +55,50 @@ def compute_confidence(state: AnalysisState, settings: Optional[Settings] = None
 
 def _evidence_grade(state: AnalysisState) -> float:
     """Diagnostic-weighted aggregate grade of the evidence (A8 factor one),
-    computed over origin-collapsed items so echo volume cannot inflate it (R6)."""
+    computed over origin-collapsed items so echo volume cannot inflate it (R6).
+
+    F3: when every piece of diagnostic evidence falls below a quality floor,
+    the aggregate is capped by the best individual grade weight. Volume of
+    uniformly poor sources cannot substitute for a single well-graded one."""
     num = den = 0.0
+    best_gw = 0.0
     for e in collapsed_diagnostic_items(state):
         gw = scales.grade_weight(e.source_reliability, e.information_credibility)
+        best_gw = max(best_gw, gw)
         num += e.diagnostic_value * gw
         den += e.diagnostic_value
     if den == 0:
         return 0.15  # no diagnostic evidence => thin base, caps confidence low
-    return round(num / den, 4)
+    aggregate = round(num / den, 4)
+    # F3: if the best individual grade weight is below the quality floor,
+    # cap the aggregate so uniformly poor evidence can't reach moderate+.
+    _QUALITY_FLOOR = 0.55
+    if best_gw < _QUALITY_FLOOR:
+        aggregate = min(aggregate, best_gw)
+    return aggregate
 
 
 def _corroboration_factor(state: AnalysisState) -> float:
     """Independent origins supporting the leading judgment, after relay collapse
-    (A8 factor two). Echo does not count (R6)."""
+    (A8 factor two). Echo does not count (R6).
+
+    F3: corroboration credit is halved when the best evidence grade weight is
+    below the quality floor, because agreement among uniformly weak sources is
+    qualitatively different from agreement among well-graded ones."""
     leading = state.leading_hypothesis_id
     if leading is None:
         return 0.0
     count = independent_corroboration_for(state, leading)
-    return {0: 0.1, 1: 0.4, 2: 0.7}.get(count, 1.0)
+    raw = {0: 0.1, 1: 0.4, 2: 0.7}.get(count, 1.0)
+    # F3: dampen corroboration credit when all evidence is low-grade
+    _QUALITY_FLOOR = 0.55
+    best_gw = 0.0
+    for e in collapsed_diagnostic_items(state):
+        gw = scales.grade_weight(e.source_reliability, e.information_credibility)
+        best_gw = max(best_gw, gw)
+    if best_gw < _QUALITY_FLOOR:
+        raw = raw * 0.5
+    return round(raw, 4)
 
 
 def _assumption_factor(state: AnalysisState) -> float:
@@ -87,8 +112,17 @@ def _assumption_factor(state: AnalysisState) -> float:
 
 def _coverage_factor(state: AnalysisState) -> float:
     """How much of what should be known is known (A8 factor five). Open gaps and
-    unresolved weak signals lower coverage."""
+    unresolved weak signals lower coverage.
+
+    F7: also penalize thin evidence streams (≤2 diagnostic items after relay
+    collapse). A thin stream means the question is poorly covered regardless
+    of whether explicit gaps have been named."""
     coverage = 1.0 - 0.18 * len(state.gaps)
+    # F7: thin evidence stream penalty
+    diagnostic_count = sum(1 for e in collapsed_diagnostic_items(state)
+                           if e.diagnostic_value > 0)
+    if diagnostic_count <= 2:
+        coverage = min(coverage, 0.3)  # hard-cap: thin stream = poor coverage
     return round(max(0.2, min(1.0, coverage)), 4)
 
 

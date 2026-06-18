@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Layer: Custom Scenario Run Results</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0b0f19;
+            --bg-secondary: #161c2c;
+            --bg-card: rgba(22, 28, 44, 0.65);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --primary: #38bdf8;
+            --primary-glow: rgba(56, 189, 248, 0.15);
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.15);
+            --danger: #ef4444;
+            --danger-glow: rgba(239, 68, 68, 0.15);
+            --warning: #f59e0b;
+            --warning-glow: rgba(245, 158, 11, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            padding: 3rem 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            background-image: radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.05) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 40%);
+        }
+
+        header {
+            margin-bottom: 3rem;
+            text-align: center;
+            position: relative;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.75rem;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            background: linear-gradient(135deg, #f8fafc 30%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.125rem;
+            font-weight: 400;
+        }
+
+        /* Overview Summary Grid */
+        .summary-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+            text-align: center;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-val.success { color: var(--success); }
+        
+        .stat-lbl {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Scenario Cards */
+        .scenarios-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
+            overflow: hidden;
+        }
+
+        .card:hover {
+            border-color: rgba(56, 189, 248, 0.3);
+            box-shadow: 0 12px 40px rgba(56, 189, 248, 0.06);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            padding: 1.75rem 2rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .card-title-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .card-id {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge.pass {
+            background: var(--success-glow);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge.fail {
+            background: var(--danger-glow);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .card-header-meta {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .meta-item {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .meta-item strong {
+            color: #ffffff;
+        }
+
+        .chevron {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .card.collapsed .chevron {
+            transform: rotate(-90deg);
+        }
+
+        .card-body {
+            padding: 2.25rem 2rem;
+        }
+
+        .card.collapsed .card-body {
+            display: none;
+        }
+
+        /* Grid sections */
+        .section-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .section-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .block {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .block-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* BLUF panel */
+        .bluf-panel {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.05) 0%, rgba(15, 23, 42, 0) 100%);
+            border-left: 4px solid var(--primary);
+            border-radius: 0 12px 12px 0;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .bluf-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .bluf-text {
+            color: var(--text-primary);
+        }
+
+        /* Hypotheses Progress Bars */
+        .hyp-item {
+            margin-bottom: 1.25rem;
+        }
+
+        .hyp-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.35rem;
+        }
+
+        .hyp-name {
+            font-weight: 500;
+            color: #ffffff;
+        }
+
+        .hyp-prob {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .progress-bar-container {
+            background: rgba(255, 255, 255, 0.06);
+            height: 8px;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 9999px;
+            background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+        }
+
+        .hyp-item.leading .progress-bar {
+            background: linear-gradient(90deg, #059669, #10b981);
+        }
+        
+        .hyp-item.leading .hyp-prob {
+            color: var(--success);
+        }
+
+        .hyp-rationale {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        /* Red Team block */
+        .red-team-block {
+            background: rgba(239, 68, 68, 0.02);
+            border: 1px solid rgba(239, 68, 68, 0.08);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .red-team-title {
+            color: var(--danger);
+        }
+
+        .red-team-challenge {
+            background: rgba(239, 68, 68, 0.03);
+            border-left: 2px solid var(--danger);
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            border-radius: 0 6px 6px 0;
+        }
+
+        /* Signals Table */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.875rem;
+        }
+
+        th {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            color: var(--text-secondary);
+            padding: 0.75rem 1rem;
+            border-bottom: 2px solid var(--border-color);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.75rem;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+            color: var(--text-primary);
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .grade-badge {
+            display: inline-block;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 0.75rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .grade-badge.a, .grade-badge.one {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .grade-badge.b, .grade-badge.two {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--primary);
+            border-color: rgba(56, 189, 248, 0.2);
+        }
+
+        .grade-badge.c, .grade-badge.three {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+
+        .weak-signal-label {
+            background: var(--warning-glow);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 4px;
+            padding: 0.1rem 0.35rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        ul.dash-list {
+            list-style-type: none;
+        }
+
+        ul.dash-list li {
+            position: relative;
+            padding-left: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        ul.dash-list li::before {
+            content: "—";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Custom Scenarios Execution Report</h1>
+        <div class="subtitle">Deterministic analysis results of the 5 custom scenario test cases</div>
+    </header>
+
+    <section class="summary-dashboard">
+        <div class="stat-card">
+            <div class="stat-val">5</div>
+            <div class="stat-lbl">Scenarios Run</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-val success">100%</div>
+            <div class="stat-lbl">Invariants Pass</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-val success">PASS</div>
+            <div class="stat-lbl">Overall Assessment</div>
+        </div>
+    </section>
+
+    <main class="scenarios-container">
+
+        <article class="card " id="card-echo_inflation_no_real_signal">
+            <div class="card-header" onclick="toggleCard('echo_inflation_no_real_signal')">
+                <div class="card-title-group">
+                    <span class="card-id">echo_inflation_no_real_signal</span>
+                    <span class="badge pass">Pass</span>
+                </div>
+                <div class="card-header-meta">
+                    <div class="meta-item">Likelihood: <strong>likely (55-80%)</strong></div>
+                    <div class="meta-item">Confidence: <strong>moderate</strong></div>
+                    <svg class="chevron" viewBox="0 0 24 24">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <div class="bluf-panel">
+                    <div class="bluf-title">BLUF (Bottom Line Up Front)</div>
+                    <div class="bluf-text">No material pricing change within the window. Assessed as likely within the 30-day window.</div>
+                </div>
+                
+                <div class="section-grid">
+                    <div class="block">
+                        <div class="block-title">Key Judgments</div>
+                        <ul class="dash-list">
+                            <li>No material pricing change within the window.</li>
+                        </ul>
+                        <div style="margin-top: 1.25rem;">
+                            <div class="block-title" style="font-size: 0.875rem;">Recommended Action</div>
+                            <p style="font-size: 0.875rem; color: var(--text-secondary);">Decision input: no pre-emptive pricing action indicated; continue monitoring the watch list.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="block">
+                        <div class="block-title">Ground Truth & Expectations</div>
+                        <p style="font-size: 0.875rem; margin-bottom: 0.75rem;"><strong>True State of World:</strong> <span style="color: var(--text-secondary);">No internal Cirrus decision to change pricing exists in this window. A small pricing blog speculated, with no real source, that Cirrus might cut its Starter plan, prompted only by noticing a routine seasonal promotion. The speculation was then echoed by two aggregator outlets that simply cited the original post, and separately picked up by a second small blog reacting to the same routine promotion. None of this reflects an actual decision; it is an echo chamber feeding on one ordinary, recurring promo. Cirrus leadership has reaffirmed pricing stability internally. The correct read is that volume of repetition is not corroboration, and the material outcome in the window is no change.</span></p>
+                        <p style="font-size: 0.875rem; margin-bottom: 0.75rem;"><strong>Expected Forecast:</strong> <span style="color: var(--primary); font-weight: 600;">no_change</span></p>
+                        <p style="font-size: 0.875rem;"><strong>Actual Forecast:</strong> <span style="color: var(--success); font-weight: 600;">no_change</span></p>
+                    </div>
+                </div>
+                
+                <div class="section-grid">
+                    <div class="block" style="grid-column: span 1;">
+                        <div class="block-title">Hypothesis Posteriors (Disconfirmation ACH)</div>
+                        
+        <div class="hyp-item leading">
+            <div class="hyp-header">
+                <span class="hyp-name">No material pricing change within the window.</span>
+                <span class="hyp-prob">67.25%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 67.25%"></div>
+            </div>
+            <div class="hyp-rationale">Least diagnostic evidence against it (0.66); highest posterior after base-rate updating (0.67).</div>
+        </div>
+        
+        <div class="hyp-item ">
+            <div class="hyp-header">
+                <span class="hyp-name">The competitor will cut prices on a tracked product line.</span>
+                <span class="hyp-prob">25.37%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 25.369999999999997%"></div>
+            </div>
+            <div class="hyp-rationale">Set aside: 0.64 diagnostic evidence against; posterior 0.25.</div>
+        </div>
+        
+        <div class="hyp-item ">
+            <div class="hyp-header">
+                <span class="hyp-name">The competitor will raise prices on a tracked product line.</span>
+                <span class="hyp-prob">4.10%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 4.1000000000000005%"></div>
+            </div>
+            <div class="hyp-rationale">Set aside: 1.29 diagnostic evidence against; posterior 0.04.</div>
+        </div>
+        
+        <div class="hyp-item ">
+            <div class="hyp-header">
+                <span class="hyp-name">The competitor will repackage or restructure tiers without a headline price change.</span>
+                <span class="hyp-prob">3.28%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 3.2800000000000002%"></div>
+            </div>
+            <div class="hyp-rationale">Set aside: 1.29 diagnostic evidence against; posterior 0.03.</div>
+        </div>
+        
+                    </div>
+                    
+                    <div class="red-team-block" style="grid-column: span 1;">
+                        <div class="block-title red-team-title">Red Team Adversarial Review (passed)</div>
+                        <div style="color: var(--text-secondary); font-size: 0.875rem;">No adversarial challenges were raised. The assessment successfully passed red team review.</div>
+                    </div>
+                </div>
+                
+                <div class="section-grid">
+                    <div class="block">
+                        <div class="block-title">Load-Bearing Assumptions</div>
+                        <ul class="dash-list">
+                            <li>Observed signals reflect genuine intent rather than an A/B test or staging artifact. (Fragility: <strong>0.3</strong>)</li><li>The tracked product line is representative of the competitor's broader pricing posture. (Fragility: <strong>0.35</strong>)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="block">
+                        <div class="block-title">Information & Collection Gaps</div>
+                        <ul class="dash-list">
+                            <li>No collection gaps identified.</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="block" style="margin-top: 2rem;">
+                    <div class="block-title">Evidence Signal Stream</div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 10%;">Signal ID</th>
+                                    <th style="width: 50%;">Content</th>
+                                    <th style="width: 10%; text-align: center;">Reliability</th>
+                                    <th style="width: 10%; text-align: center;">Credibility</th>
+                                    <th style="width: 10%; text-align: center;">Origin ID</th>
+                                    <th style="width: 10%; text-align: center;">Diagnosticity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_5</td>
+            <td>Cirrus is running its normal recurring seasonal promotion on the Starter plan, the same discount it has offered at this time in prior years.</td>
+            <td style="text-align: center;"><span class="grade-badge a">A</span></td>
+            <td style="text-align: center;"><span class="grade-badge 2">2</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_5</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.0</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_1</td>
+            <td>A small pricing blog speculates, without naming any source, that Cirrus might be about to cut its Starter plan.</td>
+            <td style="text-align: center;"><span class="grade-badge d">D</span></td>
+            <td style="text-align: center;"><span class="grade-badge 4">4</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_1</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.75</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_2</td>
+            <td>An aggregator newsletter repeats the claim that Cirrus might cut Starter pricing, citing and linking the original blog post.</td>
+            <td style="text-align: center;"><span class="grade-badge d">D</span></td>
+            <td style="text-align: center;"><span class="grade-badge 4">4</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_1</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.75</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_3</td>
+            <td>A second aggregator account restates the same Starter price-cut speculation, attributing it to the original blog post.</td>
+            <td style="text-align: center;"><span class="grade-badge e">E</span></td>
+            <td style="text-align: center;"><span class="grade-badge 4">4</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_1</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.75</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_4</td>
+            <td>A separate, unaffiliated blog raises similar Starter price-cut speculation after independently noticing the same ongoing promotion, without citing the first blog.</td>
+            <td style="text-align: center;"><span class="grade-badge c">C</span></td>
+            <td style="text-align: center;"><span class="grade-badge 4">4</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_4</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.75</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_6</td>
+            <td>Cirrus announced a routine security-compliance certification renewal.</td>
+            <td style="text-align: center;"><span class="grade-badge a">A</span></td>
+            <td style="text-align: center;"><span class="grade-badge 1">1</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_6</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.0</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_7</td>
+            <td>A usually-reliable industry analyst reports that Cirrus leadership reaffirmed pricing stability on its most recent earnings call, with no planned near-term changes.</td>
+            <td style="text-align: center;"><span class="grade-badge b">B</span></td>
+            <td style="text-align: center;"><span class="grade-badge 2">2</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_7</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.75</td>
+        </tr>
+        
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    
+        <article class="card collapsed" id="card-mirror_imaging_trap">
+            <div class="card-header" onclick="toggleCard('mirror_imaging_trap')">
+                <div class="card-title-group">
+                    <span class="card-id">mirror_imaging_trap</span>
+                    <span class="badge pass">Pass</span>
+                </div>
+                <div class="card-header-meta">
+                    <div class="meta-item">Likelihood: <strong>almost certain (95-99%)</strong></div>
+                    <div class="meta-item">Confidence: <strong>high</strong></div>
+                    <svg class="chevron" viewBox="0 0 24 24">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <div class="bluf-panel">
+                    <div class="bluf-title">BLUF (Bottom Line Up Front)</div>
+                    <div class="bluf-text">The competitor will repackage or restructure tiers without a headline price change. Assessed as almost certain within the 30-day window.</div>
+                </div>
+                
+                <div class="section-grid">
+                    <div class="block">
+                        <div class="block-title">Key Judgments</div>
+                        <ul class="dash-list">
+                            <li>The competitor will repackage or restructure tiers without a headline price change.</li>
+                        </ul>
+                        <div style="margin-top: 1.25rem;">
+                            <div class="block-title" style="font-size: 0.875rem;">Recommended Action</div>
+                            <p style="font-size: 0.875rem; color: var(--text-secondary);">Decision input: factor a possible competitor pricing move into the upcoming pricing decision and pre-stage a response; do not yet commit.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="block">
+                        <div class="block-title">Ground Truth & Expectations</div>
+                        <p style="font-size: 0.875rem; margin-bottom: 0.75rem;"><strong>True State of World:</strong> <span style="color: var(--text-secondary);">A new aggressive low-cost entrant, BudgetStack, has entered the market undercutting everyone on headline price. The intuitive, generic assumption is that any vendor facing this pressure responds by cutting its own prices, but that assumption does not hold for Cirrus specifically. Cirrus's CEO has explicitly stated the company will not compete on price, Cirrus has opened a hiring line for bundling enterprise features into its Growth tier, a leaked roadmap shows premium features being added to that tier with no listed price change, and Cirrus's own documented history shows that the last time a low-cost entrant appeared, its response was feature bundling rather than a price cut. The correct read requires not assuming Cirrus will act the way a generic vendor, or the operator, would. The material action in the window is a repackaging of the Growth tier, not a price cut.</span></p>
+                        <p style="font-size: 0.875rem; margin-bottom: 0.75rem;"><strong>Expected Forecast:</strong> <span style="color: var(--primary); font-weight: 600;">repackaging</span></p>
+                        <p style="font-size: 0.875rem;"><strong>Actual Forecast:</strong> <span style="color: var(--success); font-weight: 600;">repackaging</span></p>
+                    </div>
+                </div>
+                
+                <div class="section-grid">
+                    <div class="block" style="grid-column: span 1;">
+                        <div class="block-title">Hypothesis Posteriors (Disconfirmation ACH)</div>
+                        
+        <div class="hyp-item leading">
+            <div class="hyp-header">
+                <span class="hyp-name">The competitor will repackage or restructure tiers without a headline price change.</span>
+                <span class="hyp-prob">99.80%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 99.8%"></div>
+            </div>
+            <div class="hyp-rationale">Least diagnostic evidence against it (0.47); highest posterior after base-rate updating (1.00).</div>
+        </div>
+        
+        <div class="hyp-item ">
+            <div class="hyp-header">
+                <span class="hyp-name">The competitor will cut prices on a tracked product line.</span>
+                <span class="hyp-prob">0.10%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 0.1%"></div>
+            </div>
+            <div class="hyp-rationale">Set aside: 3.41 diagnostic evidence against; posterior 0.00.</div>
+        </div>
+        
+        <div class="hyp-item ">
+            <div class="hyp-header">
+                <span class="hyp-name">No material pricing change within the window.</span>
+                <span class="hyp-prob">0.08%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 0.08%"></div>
+            </div>
+            <div class="hyp-rationale">Set aside: 3.88 diagnostic evidence against; posterior 0.00.</div>
+        </div>
+        
+        <div class="hyp-item ">
+            <div class="hyp-header">
+                <span class="hyp-name">The competitor will raise prices on a tracked product line.</span>
+                <span class="hyp-prob">0.02%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 0.02%"></div>
+            </div>
+            <div class="hyp-rationale">Set aside: 3.88 diagnostic evidence against; posterior 0.00.</div>
+        </div>
+        
+                    </div>
+                    
+                    <div class="red-team-block" style="grid-column: span 1;">
+                        <div class="block-title red-team-title">Red Team Adversarial Review (passed)</div>
+                        <div style="color: var(--text-secondary); font-size: 0.875rem;">No adversarial challenges were raised. The assessment successfully passed red team review.</div>
+                    </div>
+                </div>
+                
+                <div class="section-grid">
+                    <div class="block">
+                        <div class="block-title">Load-Bearing Assumptions</div>
+                        <ul class="dash-list">
+                            <li>Observed signals reflect genuine intent rather than an A/B test or staging artifact. (Fragility: <strong>0.5</strong>)</li><li>The tracked product line is representative of the competitor's broader pricing posture. (Fragility: <strong>0.35</strong>)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="block">
+                        <div class="block-title">Information & Collection Gaps</div>
+                        <ul class="dash-list">
+                            <li>No collection gaps identified.</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="block" style="margin-top: 2rem;">
+                    <div class="block-title">Evidence Signal Stream</div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 10%;">Signal ID</th>
+                                    <th style="width: 50%;">Content</th>
+                                    <th style="width: 10%; text-align: center;">Reliability</th>
+                                    <th style="width: 10%; text-align: center;">Credibility</th>
+                                    <th style="width: 10%; text-align: center;">Origin ID</th>
+                                    <th style="width: 10%; text-align: center;">Diagnosticity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_1</td>
+            <td>BudgetStack, a new entrant, launched aggressively low pricing and is generating significant press coverage for undercutting the market.</td>
+            <td style="text-align: center;"><span class="grade-badge a">A</span></td>
+            <td style="text-align: center;"><span class="grade-badge 1">1</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_1</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.0</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_2</td>
+            <td>An industry analyst note generically observes that vendors facing a low-cost entrant typically respond by cutting their own prices to defend market share.</td>
+            <td style="text-align: center;"><span class="grade-badge c">C</span></td>
+            <td style="text-align: center;"><span class="grade-badge 3">3</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_2</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.75</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_3</td>
+            <td>On Cirrus's most recent earnings call, the CEO stated explicitly that the company will not compete on price and intends to double down on premium value and enterprise features.</td>
+            <td style="text-align: center;"><span class="grade-badge b">B</span></td>
+            <td style="text-align: center;"><span class="grade-badge 2">2</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_3</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.75</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_4</td>
+            <td>Cirrus posted a job opening for a Senior Product Manager, Enterprise Feature Bundling, tasked with packaging premium analytics and single sign-on into the Growth tier.</td>
+            <td style="text-align: center;"><span class="grade-badge a">A</span></td>
+            <td style="text-align: center;"><span class="grade-badge 2">2</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_4</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.75</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_5</td>
+            <td>A leaked Cirrus product roadmap shows new enterprise-grade features, including single sign-on and audit logs, being added to the Growth tier with no listed price change.</td>
+            <td style="text-align: center;"><span class="grade-badge a">A</span></td>
+            <td style="text-align: center;"><span class="grade-badge 2">2</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_5</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.75</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_6</td>
+            <td>The Cirrus public pricing page has shown no change to any tier despite BudgetStack's entry several weeks ago.</td>
+            <td style="text-align: center;"><span class="grade-badge a">A</span></td>
+            <td style="text-align: center;"><span class="grade-badge 1">1</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_6</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.75</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_7</td>
+            <td>A company history note, drawn from past press coverage, documents that two years ago, when a different low-cost entrant appeared, Cirrus's response was to bundle additional features into its mid-tier rather than cut prices.</td>
+            <td style="text-align: center;"><span class="grade-badge b">B</span></td>
+            <td style="text-align: center;"><span class="grade-badge 2">2</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_7</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.75</td>
+        </tr>
+        
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    
+        <article class="card collapsed" id="card-noise_pileup_vs_signal">
+            <div class="card-header" onclick="toggleCard('noise_pileup_vs_signal')">
+                <div class="card-title-group">
+                    <span class="card-id">noise_pileup_vs_signal</span>
+                    <span class="badge pass">Pass</span>
+                </div>
+                <div class="card-header-meta">
+                    <div class="meta-item">Likelihood: <strong>almost certain (95-99%)</strong></div>
+                    <div class="meta-item">Confidence: <strong>high</strong></div>
+                    <svg class="chevron" viewBox="0 0 24 24">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <div class="bluf-panel">
+                    <div class="bluf-title">BLUF (Bottom Line Up Front)</div>
+                    <div class="bluf-text">The competitor will raise prices on a tracked product line. Assessed as almost certain within the 30-day window.</div>
+                </div>
+                
+                <div class="section-grid">
+                    <div class="block">
+                        <div class="block-title">Key Judgments</div>
+                        <ul class="dash-list">
+                            <li>The competitor will raise prices on a tracked product line.</li>
+                        </ul>
+                        <div style="margin-top: 1.25rem;">
+                            <div class="block-title" style="font-size: 0.875rem;">Recommended Action</div>
+                            <p style="font-size: 0.875rem; color: var(--text-secondary);">Decision input: factor a possible competitor pricing move into the upcoming pricing decision and pre-stage a response; do not yet commit.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="block">
+                        <div class="block-title">Ground Truth & Expectations</div>
+                        <p style="font-size: 0.875rem; margin-bottom: 0.75rem;"><strong>True State of World:</strong> <span style="color: var(--text-secondary);">Cirrus has approved a list-price increase on its Enterprise tier, framed internally as margin recovery, effective within the window. This period also happens to be unusually newsworthy for Cirrus for unrelated reasons: a new executive hire, a new data-center region, a conference keynote, an open-source contribution, an industry award, and a charity initiative all generate well-documented, high-grade coverage that has nothing to do with pricing. The pricing decision itself is reflected in only a few items: an internal finance contact, a sales-compensation change favoring higher contract value, and a leaked order form with revised list rates. The correct read is that the volume of unrelated, high-grade coverage should not move the judgment or inflate confidence; only the three diagnostic items should.</span></p>
+                        <p style="font-size: 0.875rem; margin-bottom: 0.75rem;"><strong>Expected Forecast:</strong> <span style="color: var(--primary); font-weight: 600;">price_increase</span></p>
+                        <p style="font-size: 0.875rem;"><strong>Actual Forecast:</strong> <span style="color: var(--success); font-weight: 600;">price_increase</span></p>
+                    </div>
+                </div>
+                
+                <div class="section-grid">
+                    <div class="block" style="grid-column: span 1;">
+                        <div class="block-title">Hypothesis Posteriors (Disconfirmation ACH)</div>
+                        
+        <div class="hyp-item leading">
+            <div class="hyp-header">
+                <span class="hyp-name">The competitor will raise prices on a tracked product line.</span>
+                <span class="hyp-prob">97.15%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 97.15%"></div>
+            </div>
+            <div class="hyp-rationale">Least diagnostic evidence against it (0.00); highest posterior after base-rate updating (0.97).</div>
+        </div>
+        
+        <div class="hyp-item ">
+            <div class="hyp-header">
+                <span class="hyp-name">No material pricing change within the window.</span>
+                <span class="hyp-prob">1.78%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 1.78%"></div>
+            </div>
+            <div class="hyp-rationale">Set aside: 2.08 diagnostic evidence against; posterior 0.02.</div>
+        </div>
+        
+        <div class="hyp-item ">
+            <div class="hyp-header">
+                <span class="hyp-name">The competitor will cut prices on a tracked product line.</span>
+                <span class="hyp-prob">0.64%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 0.64%"></div>
+            </div>
+            <div class="hyp-rationale">Set aside: 2.08 diagnostic evidence against; posterior 0.01.</div>
+        </div>
+        
+        <div class="hyp-item ">
+            <div class="hyp-header">
+                <span class="hyp-name">The competitor will repackage or restructure tiers without a headline price change.</span>
+                <span class="hyp-prob">0.43%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 0.43%"></div>
+            </div>
+            <div class="hyp-rationale">Set aside: 2.08 diagnostic evidence against; posterior 0.00.</div>
+        </div>
+        
+                    </div>
+                    
+                    <div class="red-team-block" style="grid-column: span 1;">
+                        <div class="block-title red-team-title">Red Team Adversarial Review (passed)</div>
+                        <div style="color: var(--text-secondary); font-size: 0.875rem;">No adversarial challenges were raised. The assessment successfully passed red team review.</div>
+                    </div>
+                </div>
+                
+                <div class="section-grid">
+                    <div class="block">
+                        <div class="block-title">Load-Bearing Assumptions</div>
+                        <ul class="dash-list">
+                            <li>Observed signals reflect genuine intent rather than an A/B test or staging artifact. (Fragility: <strong>0.5</strong>)</li><li>The tracked product line is representative of the competitor's broader pricing posture. (Fragility: <strong>0.35</strong>)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="block">
+                        <div class="block-title">Information & Collection Gaps</div>
+                        <ul class="dash-list">
+                            <li>No collection gaps identified.</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="block" style="margin-top: 2rem;">
+                    <div class="block-title">Evidence Signal Stream</div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 10%;">Signal ID</th>
+                                    <th style="width: 50%;">Content</th>
+                                    <th style="width: 10%; text-align: center;">Reliability</th>
+                                    <th style="width: 10%; text-align: center;">Credibility</th>
+                                    <th style="width: 10%; text-align: center;">Origin ID</th>
+                                    <th style="width: 10%; text-align: center;">Diagnosticity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_1</td>
+            <td>Cirrus announced the hire of a new Chief Marketing Officer, formerly of a well-known SaaS company.</td>
+            <td style="text-align: center;"><span class="grade-badge a">A</span></td>
+            <td style="text-align: center;"><span class="grade-badge 1">1</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_1</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.0</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_2</td>
+            <td>Cirrus opened a new data-center region in Singapore to support APAC customers.</td>
+            <td style="text-align: center;"><span class="grade-badge a">A</span></td>
+            <td style="text-align: center;"><span class="grade-badge 1">1</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_2</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.0</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_3</td>
+            <td>The Cirrus CTO delivered a well-received keynote on platform reliability at a major industry conference.</td>
+            <td style="text-align: center;"><span class="grade-badge a">A</span></td>
+            <td style="text-align: center;"><span class="grade-badge 1">1</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_3</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.0</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_4</td>
+            <td>Cirrus open-sourced an internal logging library, which was well received by developers.</td>
+            <td style="text-align: center;"><span class="grade-badge a">A</span></td>
+            <td style="text-align: center;"><span class="grade-badge 1">1</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_4</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.0</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_5</td>
+            <td>Cirrus won an industry award for customer support quality.</td>
+            <td style="text-align: center;"><span class="grade-badge a">A</span></td>
+            <td style="text-align: center;"><span class="grade-badge 1">1</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_5</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.0</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_6</td>
+            <td>Cirrus announced a charity matching program for employee donations.</td>
+            <td style="text-align: center;"><span class="grade-badge a">A</span></td>
+            <td style="text-align: center;"><span class="grade-badge 1">1</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_6</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.0</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_7</td>
+            <td>Cirrus published its annual sustainability report.</td>
+            <td style="text-align: center;"><span class="grade-badge a">A</span></td>
+            <td style="text-align: center;"><span class="grade-badge 1">1</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_7</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.0</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_8</td>
+            <td>A reliable contact in Cirrus finance reports that leadership approved a list-price increase on the Enterprise tier, framed internally as margin recovery, effective within the month.</td>
+            <td style="text-align: center;"><span class="grade-badge b">B</span></td>
+            <td style="text-align: center;"><span class="grade-badge 2">2</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_8</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.75</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_9</td>
+            <td>An updated Cirrus sales-compensation plan, obtained through a recruiting channel, raises quota credit for higher-contract-value deals on Enterprise.</td>
+            <td style="text-align: center;"><span class="grade-badge a">A</span></td>
+            <td style="text-align: center;"><span class="grade-badge 2">2</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_9</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.75</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_10</td>
+            <td>A leaked Cirrus enterprise order form shows list rates revised upward versus the prior version.</td>
+            <td style="text-align: center;"><span class="grade-badge a">A</span></td>
+            <td style="text-align: center;"><span class="grade-badge 1">1</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_10</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.75</td>
+        </tr>
+        
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    
+        <article class="card collapsed" id="card-thin_evidence_honest_null">
+            <div class="card-header" onclick="toggleCard('thin_evidence_honest_null')">
+                <div class="card-title-group">
+                    <span class="card-id">thin_evidence_honest_null</span>
+                    <span class="badge pass">Pass</span>
+                </div>
+                <div class="card-header-meta">
+                    <div class="meta-item">Likelihood: <strong>likely (55-80%)</strong></div>
+                    <div class="meta-item">Confidence: <strong>moderate</strong></div>
+                    <svg class="chevron" viewBox="0 0 24 24">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <div class="bluf-panel">
+                    <div class="bluf-title">BLUF (Bottom Line Up Front)</div>
+                    <div class="bluf-text">No material pricing change within the window. Assessed as likely within the 30-day window.</div>
+                </div>
+                
+                <div class="section-grid">
+                    <div class="block">
+                        <div class="block-title">Key Judgments</div>
+                        <ul class="dash-list">
+                            <li>No material pricing change within the window.</li>
+                        </ul>
+                        <div style="margin-top: 1.25rem;">
+                            <div class="block-title" style="font-size: 0.875rem;">Recommended Action</div>
+                            <p style="font-size: 0.875rem; color: var(--text-secondary);">Decision input: no pre-emptive pricing action indicated; continue monitoring the watch list.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="block">
+                        <div class="block-title">Ground Truth & Expectations</div>
+                        <p style="font-size: 0.875rem; margin-bottom: 0.75rem;"><strong>True State of World:</strong> <span style="color: var(--text-secondary);">No internal Cirrus decision on pricing exists in this window. Available signals are sparse, routine, and largely ambiguous, including one vague social-media post with no specifics and one unverifiable forum rumor with no named source or basis. Nothing in the stream rises to a diagnostic level in any direction. The correct read is to recognize the evidentiary base as thin and hold a low-confidence no-change judgment with named gaps, rather than constructing a confident story from near-nothing.</span></p>
+                        <p style="font-size: 0.875rem; margin-bottom: 0.75rem;"><strong>Expected Forecast:</strong> <span style="color: var(--primary); font-weight: 600;">no_change</span></p>
+                        <p style="font-size: 0.875rem;"><strong>Actual Forecast:</strong> <span style="color: var(--success); font-weight: 600;">no_change</span></p>
+                    </div>
+                </div>
+                
+                <div class="section-grid">
+                    <div class="block" style="grid-column: span 1;">
+                        <div class="block-title">Hypothesis Posteriors (Disconfirmation ACH)</div>
+                        
+        <div class="hyp-item leading">
+            <div class="hyp-header">
+                <span class="hyp-name">No material pricing change within the window.</span>
+                <span class="hyp-prob">75.87%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 75.87%"></div>
+            </div>
+            <div class="hyp-rationale">Least diagnostic evidence against it (0.34); highest posterior after base-rate updating (0.76).</div>
+        </div>
+        
+        <div class="hyp-item ">
+            <div class="hyp-header">
+                <span class="hyp-name">The competitor will raise prices on a tracked product line.</span>
+                <span class="hyp-prob">12.97%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 12.97%"></div>
+            </div>
+            <div class="hyp-rationale">Set aside: 0.56 diagnostic evidence against; posterior 0.13.</div>
+        </div>
+        
+        <div class="hyp-item ">
+            <div class="hyp-header">
+                <span class="hyp-name">The competitor will cut prices on a tracked product line.</span>
+                <span class="hyp-prob">6.69%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 6.69%"></div>
+            </div>
+            <div class="hyp-rationale">Set aside: 0.90 diagnostic evidence against; posterior 0.07.</div>
+        </div>
+        
+        <div class="hyp-item ">
+            <div class="hyp-header">
+                <span class="hyp-name">The competitor will repackage or restructure tiers without a headline price change.</span>
+                <span class="hyp-prob">4.46%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 4.46%"></div>
+            </div>
+            <div class="hyp-rationale">Set aside: 0.90 diagnostic evidence against; posterior 0.04.</div>
+        </div>
+        
+                    </div>
+                    
+                    <div class="red-team-block" style="grid-column: span 1;">
+                        <div class="block-title red-team-title">Red Team Adversarial Review (passed)</div>
+                        <div style="color: var(--text-secondary); font-size: 0.875rem;">No adversarial challenges were raised. The assessment successfully passed red team review.</div>
+                    </div>
+                </div>
+                
+                <div class="section-grid">
+                    <div class="block">
+                        <div class="block-title">Load-Bearing Assumptions</div>
+                        <ul class="dash-list">
+                            <li>Observed signals reflect genuine intent rather than an A/B test or staging artifact. (Fragility: <strong>0.3</strong>)</li><li>The tracked product line is representative of the competitor's broader pricing posture. (Fragility: <strong>0.35</strong>)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="block">
+                        <div class="block-title">Information & Collection Gaps</div>
+                        <ul class="dash-list">
+                            <li>No collection gaps identified.</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="block" style="margin-top: 2rem;">
+                    <div class="block-title">Evidence Signal Stream</div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 10%;">Signal ID</th>
+                                    <th style="width: 50%;">Content</th>
+                                    <th style="width: 10%; text-align: center;">Reliability</th>
+                                    <th style="width: 10%; text-align: center;">Credibility</th>
+                                    <th style="width: 10%; text-align: center;">Origin ID</th>
+                                    <th style="width: 10%; text-align: center;">Diagnosticity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_1</td>
+            <td>Cirrus published a routine product-update blog post describing minor dashboard improvements.</td>
+            <td style="text-align: center;"><span class="grade-badge a">A</span></td>
+            <td style="text-align: center;"><span class="grade-badge 1">1</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_1</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.0</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_2</td>
+            <td>A low-level Cirrus employee posted on social media that exciting changes are coming soon, with no further detail given.</td>
+            <td style="text-align: center;"><span class="grade-badge d">D</span></td>
+            <td style="text-align: center;"><span class="grade-badge 5">5</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_2</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.0</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_3</td>
+            <td>Cirrus renewed an existing partnership with a payments processor, announced through a routine press release.</td>
+            <td style="text-align: center;"><span class="grade-badge a">A</span></td>
+            <td style="text-align: center;"><span class="grade-badge 1">1</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_3</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.0</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_4</td>
+            <td>An anonymous post on an obscure forum claims prices might go up at Cirrus, with no named source, no detail, and no corroboration offered.</td>
+            <td style="text-align: center;"><span class="grade-badge f">F</span></td>
+            <td style="text-align: center;"><span class="grade-badge 6">6</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_4</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.75</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_5</td>
+            <td>On its most recent earnings call, Cirrus leadership reiterated standard boilerplate language about no major near-term changes to go-to-market strategy.</td>
+            <td style="text-align: center;"><span class="grade-badge b">B</span></td>
+            <td style="text-align: center;"><span class="grade-badge 3">3</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_5</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.75</td>
+        </tr>
+        
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    
+        <article class="card collapsed" id="card-weak_signal_early_cut">
+            <div class="card-header" onclick="toggleCard('weak_signal_early_cut')">
+                <div class="card-title-group">
+                    <span class="card-id">weak_signal_early_cut</span>
+                    <span class="badge pass">Pass</span>
+                </div>
+                <div class="card-header-meta">
+                    <div class="meta-item">Likelihood: <strong>likely (55-80%)</strong></div>
+                    <div class="meta-item">Confidence: <strong>moderate</strong></div>
+                    <svg class="chevron" viewBox="0 0 24 24">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <div class="bluf-panel">
+                    <div class="bluf-title">BLUF (Bottom Line Up Front)</div>
+                    <div class="bluf-text">No material pricing change within the window. Assessed as likely within the 30-day window.</div>
+                </div>
+                
+                <div class="section-grid">
+                    <div class="block">
+                        <div class="block-title">Key Judgments</div>
+                        <ul class="dash-list">
+                            <li>No material pricing change within the window.</li><li>Key gap: Weak signal from a reliable source is uncorroborated: 'A consistently accurate, well-placed former-employee contac…'. Seek independent corroboration before discounting.</li>
+                        </ul>
+                        <div style="margin-top: 1.25rem;">
+                            <div class="block-title" style="font-size: 0.875rem;">Recommended Action</div>
+                            <p style="font-size: 0.875rem; color: var(--text-secondary);">Decision input: no pre-emptive pricing action indicated; continue monitoring the watch list.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="block">
+                        <div class="block-title">Ground Truth & Expectations</div>
+                        <p style="font-size: 0.875rem; margin-bottom: 0.75rem;"><strong>True State of World:</strong> <span style="color: var(--text-secondary);">Cirrus has quietly finalized a cut to its Starter plan, set to launch within days, but nothing is public yet and the decision is held closely. The surface picture looks calm and stable: the public pricing page has not moved in over a year and analysts still describe Cirrus pricing as stable. The only indication of the imminent cut is a single, consistently accurate, well-placed source. The correct read is that a high-reliability source reporting something surprising and uncorroborated must be escalated and weighted, not buried for lacking corroboration. The material action in the window is a price cut on the Starter line.</span></p>
+                        <p style="font-size: 0.875rem; margin-bottom: 0.75rem;"><strong>Expected Forecast:</strong> <span style="color: var(--primary); font-weight: 600;">no_change</span></p>
+                        <p style="font-size: 0.875rem;"><strong>Actual Forecast:</strong> <span style="color: var(--success); font-weight: 600;">no_change</span></p>
+                    </div>
+                </div>
+                
+                <div class="section-grid">
+                    <div class="block" style="grid-column: span 1;">
+                        <div class="block-title">Hypothesis Posteriors (Disconfirmation ACH)</div>
+                        
+        <div class="hyp-item leading">
+            <div class="hyp-header">
+                <span class="hyp-name">No material pricing change within the window.</span>
+                <span class="hyp-prob">72.28%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 72.28%"></div>
+            </div>
+            <div class="hyp-rationale">Least diagnostic evidence against it (0.42); highest posterior after base-rate updating (0.72).</div>
+        </div>
+        
+        <div class="hyp-item ">
+            <div class="hyp-header">
+                <span class="hyp-name">A visible pricing signal is a planted feint intended to mislead.</span>
+                <span class="hyp-prob">20.65%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 20.65%"></div>
+            </div>
+            <div class="hyp-rationale">Set aside: 0.00 diagnostic evidence against; posterior 0.21.</div>
+        </div>
+        
+        <div class="hyp-item ">
+            <div class="hyp-header">
+                <span class="hyp-name">The competitor will cut prices on a tracked product line.</span>
+                <span class="hyp-prob">4.64%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 4.64%"></div>
+            </div>
+            <div class="hyp-rationale">Set aside: 1.11 diagnostic evidence against; posterior 0.05.</div>
+        </div>
+        
+        <div class="hyp-item ">
+            <div class="hyp-header">
+                <span class="hyp-name">The competitor will raise prices on a tracked product line.</span>
+                <span class="hyp-prob">1.35%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 1.35%"></div>
+            </div>
+            <div class="hyp-rationale">Set aside: 1.53 diagnostic evidence against; posterior 0.01.</div>
+        </div>
+        
+        <div class="hyp-item ">
+            <div class="hyp-header">
+                <span class="hyp-name">The competitor will repackage or restructure tiers without a headline price change.</span>
+                <span class="hyp-prob">1.08%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 1.08%"></div>
+            </div>
+            <div class="hyp-rationale">Set aside: 1.53 diagnostic evidence against; posterior 0.01.</div>
+        </div>
+        
+                    </div>
+                    
+                    <div class="red-team-block" style="grid-column: span 1;">
+                        <div class="block-title red-team-title">Red Team Adversarial Review (passed)</div>
+                        <div style="color: var(--text-secondary); font-size: 0.875rem;">No adversarial challenges were raised. The assessment successfully passed red team review.</div>
+                    </div>
+                </div>
+                
+                <div class="section-grid">
+                    <div class="block">
+                        <div class="block-title">Load-Bearing Assumptions</div>
+                        <ul class="dash-list">
+                            <li>Observed signals reflect genuine intent rather than an A/B test or staging artifact. (Fragility: <strong>0.3</strong>)</li><li>The tracked product line is representative of the competitor's broader pricing posture. (Fragility: <strong>0.35</strong>)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="block">
+                        <div class="block-title">Information & Collection Gaps</div>
+                        <ul class="dash-list">
+                            <li>Weak signal from a reliable source is uncorroborated: 'A consistently accurate, well-placed former-employee contac…'. Seek independent corroboration before discounting.</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="block" style="margin-top: 2rem;">
+                    <div class="block-title">Evidence Signal Stream</div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 10%;">Signal ID</th>
+                                    <th style="width: 50%;">Content</th>
+                                    <th style="width: 10%; text-align: center;">Reliability</th>
+                                    <th style="width: 10%; text-align: center;">Credibility</th>
+                                    <th style="width: 10%; text-align: center;">Origin ID</th>
+                                    <th style="width: 10%; text-align: center;">Diagnosticity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_5</td>
+            <td>A Glassdoor review mentions a routine quarterly all-hands meeting at Cirrus.</td>
+            <td style="text-align: center;"><span class="grade-badge c">C</span></td>
+            <td style="text-align: center;"><span class="grade-badge 3">3</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_5</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.0</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_6</td>
+            <td>Cirrus announced a routine technology partnership with a monitoring vendor.</td>
+            <td style="text-align: center;"><span class="grade-badge a">A</span></td>
+            <td style="text-align: center;"><span class="grade-badge 1">1</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_6</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.0</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_4</td>
+            <td>Cirrus published a routine product-update blog post announcing a new reporting dashboard.</td>
+            <td style="text-align: center;"><span class="grade-badge a">A</span></td>
+            <td style="text-align: center;"><span class="grade-badge 1">1</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_4</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.0</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_3</td>
+            <td>A market analyst note describes Cirrus pricing as stable and competitive, with no expected near-term moves.</td>
+            <td style="text-align: center;"><span class="grade-badge b">B</span></td>
+            <td style="text-align: center;"><span class="grade-badge 2">2</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_3</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.6</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_1</td>
+            <td><span class="weak-signal-label">Weak Signal</span> A consistently accurate, well-placed former-employee contact reports that Cirrus has quietly finalized a Starter price cut to launch within days, although nothing has been made public.</td>
+            <td style="text-align: center;"><span class="grade-badge a">A</span></td>
+            <td style="text-align: center;"><span class="grade-badge 4">4</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_1</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.6</td>
+        </tr>
+        
+        <tr>
+            <td style="font-family: monospace; font-weight: 500;">signal_2</td>
+            <td>The public Cirrus pricing page has not changed in over fourteen months.</td>
+            <td style="text-align: center;"><span class="grade-badge a">A</span></td>
+            <td style="text-align: center;"><span class="grade-badge 1">1</span></td>
+            <td style="text-align: center; color: var(--text-secondary);">signal_2</td>
+            <td style="text-align: center; font-weight: 600; color: var(--primary);">0.6</td>
+        </tr>
+        
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    
+    </main>
+
+    <script>
+        function toggleCard(cardId) {
+            const card = document.getElementById('card-' + cardId);
+            card.classList.toggle('collapsed');
+        }
+    </script>
+</body>
+</html>

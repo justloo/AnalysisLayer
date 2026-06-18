@@ -1,0 +1,95 @@
+{
+  "id": "fifty_fifty_mixed",
+  "decision_type": "competitor_pricing_move",
+  "pir": "Will the tracked competitor make a material pricing change within 30 days, and if so in which direction and on which product line?",
+  "ground_truth": {
+    "state": "Cirrus has, in fact, decided to cut its Starter plan price within the window. The available signal stream is evenly split: three signals are accurate, concrete, and directly observed, and genuinely support the cut, while three other signals are inaccurate, hedged, secondhand, and unconfirmed, and point toward a false Enterprise price increase that is not actually happening. Both clusters carry broadly comparable declared source reliability, so a naive vote count would treat them as a tie. The correct read requires weighing the content and credibility of each cluster rather than its raw count: the cut cluster rests on direct observation and a first-hand briefing, while the increase cluster rests on secondhand rumor, an unconfirmed and unverifiable document, and an inferred rather than confirmed connection. The material action in the window is a price cut on the Starter line.",
+    "resolves_to": "price_cut"
+  },
+  "signal_stream": [
+    {
+      "id": "signal_1",
+      "content": "A reliable contact in Cirrus sales reports the team was briefed this week on a new, lower Starter-tier price set to take effect at the start of next month.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-11-10T09:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "B",
+      "declared_information_credibility": "2",
+      "supports": "price_cut",
+      "role": "genuine_indicator",
+      "true_source_reliability": "B"
+    },
+    {
+      "id": "signal_2",
+      "content": "A cached version of the Cirrus pricing page, surfaced through their CDN, shows the Starter plan at a lower price than currently listed; the page is staged and not yet linked from the live site.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-11-11T13:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "2",
+      "supports": "price_cut",
+      "role": "genuine_indicator",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_3",
+      "content": "On a podcast, the Cirrus CEO said the company wants to lower the barrier to entry and make it easier for smaller teams to get started.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-11-12T17:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "B",
+      "declared_information_credibility": "3",
+      "supports": "price_cut",
+      "role": "genuine_indicator",
+      "true_source_reliability": "B"
+    },
+    {
+      "id": "signal_4",
+      "content": "A contact who sometimes hears finance-related rumors mentioned secondhand that an Enterprise price increase might be under discussion, though they had no direct visibility into any decision.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-11-10T15:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "B",
+      "declared_information_credibility": "4",
+      "supports": "price_increase",
+      "role": "noise",
+      "true_source_reliability": "D"
+    },
+    {
+      "id": "signal_5",
+      "content": "A document circulating among partners, described as an updated enterprise order form, shows higher list rates than current public pricing; its origin and currency could not be confirmed.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-11-11T18:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "B",
+      "declared_information_credibility": "4",
+      "supports": "price_increase",
+      "role": "noise",
+      "true_source_reliability": "C"
+    },
+    {
+      "id": "signal_6",
+      "content": "An analyst report cites unnamed sources suggesting Cirrus may be adjusting sales compensation in a way that could imply higher Enterprise pricing, though the report acknowledges the connection is inferred rather than confirmed.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-11-13T10:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "C",
+      "declared_information_credibility": "4",
+      "supports": "price_increase",
+      "role": "noise",
+      "true_source_reliability": "C"
+    }
+  ],
+  "expectations": {
+    "leading_hypothesis": "price_cut",
+    "must_catch_weak_signal": false,
+    "must_resist_deception": false,
+    "confidence_tracks": "evidence_quality_not_volume"
+  }
+}

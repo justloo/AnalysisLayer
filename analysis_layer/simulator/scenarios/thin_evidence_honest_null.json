@@ -1,0 +1,82 @@
+{
+  "id": "thin_evidence_honest_null",
+  "decision_type": "competitor_pricing_move",
+  "pir": "Will the tracked competitor make a material pricing change within 30 days, and if so in which direction and on which product line?",
+  "ground_truth": {
+    "state": "No internal Cirrus decision on pricing exists in this window. Available signals are sparse, routine, and largely ambiguous, including one vague social-media post with no specifics and one unverifiable forum rumor with no named source or basis. Nothing in the stream rises to a diagnostic level in any direction. The correct read is to recognize the evidentiary base as thin and hold a low-confidence no-change judgment with named gaps, rather than constructing a confident story from near-nothing.",
+    "resolves_to": "no_change"
+  },
+  "signal_stream": [
+    {
+      "id": "signal_1",
+      "content": "Cirrus published a routine product-update blog post describing minor dashboard improvements.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-09-01T09:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "1",
+      "supports": null,
+      "role": "noise",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_2",
+      "content": "A low-level Cirrus employee posted on social media that exciting changes are coming soon, with no further detail given.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-09-03T17:20:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "D",
+      "declared_information_credibility": "5",
+      "supports": null,
+      "role": "noise",
+      "true_source_reliability": "D"
+    },
+    {
+      "id": "signal_3",
+      "content": "Cirrus renewed an existing partnership with a payments processor, announced through a routine press release.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-09-05T11:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "1",
+      "supports": null,
+      "role": "noise",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_4",
+      "content": "An anonymous post on an obscure forum claims prices might go up at Cirrus, with no named source, no detail, and no corroboration offered.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-09-07T20:45:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "F",
+      "declared_information_credibility": "6",
+      "supports": "price_increase",
+      "role": "noise",
+      "true_source_reliability": "F"
+    },
+    {
+      "id": "signal_5",
+      "content": "On its most recent earnings call, Cirrus leadership reiterated standard boilerplate language about no major near-term changes to go-to-market strategy.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-09-09T14:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "B",
+      "declared_information_credibility": "3",
+      "supports": "no_change",
+      "role": "genuine_indicator",
+      "true_source_reliability": "B"
+    }
+  ],
+  "expectations": {
+    "leading_hypothesis": "no_change",
+    "must_catch_weak_signal": false,
+    "must_resist_deception": false,
+    "confidence_tracks": "evidence_quality_not_volume"
+  }
+}

@@ -1,0 +1,147 @@
+{
+  "id": "noise_pileup_vs_signal",
+  "decision_type": "competitor_pricing_move",
+  "pir": "Will the tracked competitor make a material pricing change within 30 days, and if so in which direction and on which product line?",
+  "ground_truth": {
+    "state": "Cirrus has approved a list-price increase on its Enterprise tier, framed internally as margin recovery, effective within the window. This period also happens to be unusually newsworthy for Cirrus for unrelated reasons: a new executive hire, a new data-center region, a conference keynote, an open-source contribution, an industry award, and a charity initiative all generate well-documented, high-grade coverage that has nothing to do with pricing. The pricing decision itself is reflected in only a few items: an internal finance contact, a sales-compensation change favoring higher contract value, and a leaked order form with revised list rates. The correct read is that the volume of unrelated, high-grade coverage should not move the judgment or inflate confidence; only the three diagnostic items should.",
+    "resolves_to": "price_increase"
+  },
+  "signal_stream": [
+    {
+      "id": "signal_1",
+      "content": "Cirrus announced the hire of a new Chief Marketing Officer, formerly of a well-known SaaS company.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-07-01T09:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "1",
+      "supports": null,
+      "role": "noise",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_2",
+      "content": "Cirrus opened a new data-center region in Singapore to support APAC customers.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-07-02T10:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "1",
+      "supports": null,
+      "role": "noise",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_3",
+      "content": "The Cirrus CTO delivered a well-received keynote on platform reliability at a major industry conference.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-07-03T11:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "1",
+      "supports": null,
+      "role": "noise",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_4",
+      "content": "Cirrus open-sourced an internal logging library, which was well received by developers.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-07-04T09:30:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "1",
+      "supports": null,
+      "role": "noise",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_5",
+      "content": "Cirrus won an industry award for customer support quality.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-07-05T08:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "1",
+      "supports": null,
+      "role": "noise",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_6",
+      "content": "Cirrus announced a charity matching program for employee donations.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-07-06T12:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "1",
+      "supports": null,
+      "role": "noise",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_7",
+      "content": "Cirrus published its annual sustainability report.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-07-07T09:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "1",
+      "supports": null,
+      "role": "noise",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_8",
+      "content": "A reliable contact in Cirrus finance reports that leadership approved a list-price increase on the Enterprise tier, framed internally as margin recovery, effective within the month.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-07-08T13:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "subjective",
+      "declared_source_reliability": "B",
+      "declared_information_credibility": "2",
+      "supports": "price_increase",
+      "role": "genuine_indicator",
+      "true_source_reliability": "B"
+    },
+    {
+      "id": "signal_9",
+      "content": "An updated Cirrus sales-compensation plan, obtained through a recruiting channel, raises quota credit for higher-contract-value deals on Enterprise.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-07-09T11:30:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "2",
+      "supports": "price_increase",
+      "role": "genuine_indicator",
+      "true_source_reliability": "A"
+    },
+    {
+      "id": "signal_10",
+      "content": "A leaked Cirrus enterprise order form shows list rates revised upward versus the prior version.",
+      "pir_ref": "PIR-pricing-1",
+      "timestamp": "2026-07-10T15:00:00Z",
+      "provenance_type": "primary",
+      "epistemic_type": "objective",
+      "declared_source_reliability": "A",
+      "declared_information_credibility": "1",
+      "supports": "price_increase",
+      "role": "genuine_indicator",
+      "true_source_reliability": "A"
+    }
+  ],
+  "expectations": {
+    "leading_hypothesis": "price_increase",
+    "must_catch_weak_signal": false,
+    "must_resist_deception": false,
+    "confidence_tracks": "evidence_quality_not_volume"
+  }
+}
